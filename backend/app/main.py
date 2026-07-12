@@ -65,6 +65,20 @@ if settings.BACKEND_CORS_ORIGINS:
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
+from fastapi.responses import JSONResponse
+from app.exceptions import DashboardException
+
+@app.exception_handler(DashboardException)
+async def dashboard_exception_handler(request, exc: DashboardException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "success": False,
+            "message": exc.message
+        }
+    )
+
+
 @app.get("/")
 def root():
     return {"message": "Welcome to AssetFlow API"}

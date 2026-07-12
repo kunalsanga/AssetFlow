@@ -1,5 +1,6 @@
 import enum
-from sqlalchemy import Column, Integer, String, Boolean, Enum
+from sqlalchemy import Column, Integer, String, Boolean, Enum, ForeignKey
+from sqlalchemy.orm import relationship
 from app.db.base_class import Base
 
 class UserRole(str, enum.Enum):
@@ -17,3 +18,7 @@ class User(Base):
     full_name = Column(String, index=True)
     role = Column(Enum(UserRole), default=UserRole.employee, nullable=False)
     is_active = Column(Boolean, default=True)
+    department_id = Column(Integer, ForeignKey("departments.id", name="fk_user_department"), nullable=True)
+
+    department = relationship("Department", foreign_keys=[department_id], back_populates="users")
+
