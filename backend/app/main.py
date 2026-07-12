@@ -32,11 +32,11 @@ def seed_db():
         # Seed assets if empty
         if db.query(Asset).count() == 0:
             assets_to_seed = [
-                Asset(name="MacBook Pro 16\"", serial_number="SN-MBP16-001", model="Apple MacBook Pro", status=AssetStatus.available, description="M2 Max, 32GB RAM, 1TB SSD"),
-                Asset(name="Dell XPS 15", serial_number="SN-XPS15-002", model="Dell XPS", status=AssetStatus.available, description="Intel i9, 32GB RAM, 1TB SSD"),
-                Asset(name="iPad Pro 12.9\"", serial_number="SN-IPAD-003", model="Apple iPad Pro", status=AssetStatus.available, description="M1, 256GB, Wi-Fi"),
-                Asset(name="ThinkPad X1 Carbon", serial_number="SN-TPAD-004", model="Lenovo ThinkPad", status=AssetStatus.available, description="Intel i7, 16GB RAM, 512GB SSD"),
-                Asset(name="Sony WH-1000XM4", serial_number="SN-SONY-005", model="Sony Headphones", status=AssetStatus.available, description="Active Noise Cancelling Headphones")
+                Asset(asset_tag="MAC-001", name="MacBook Pro 16\"", serial_number="SN-MBP16-001", model="Apple MacBook Pro", status=AssetStatus.available, description="M2 Max, 32GB RAM, 1TB SSD"),
+                Asset(asset_tag="DEL-001", name="Dell XPS 15", serial_number="SN-XPS15-002", model="Dell XPS", status=AssetStatus.available, description="Intel i9, 32GB RAM, 1TB SSD"),
+                Asset(asset_tag="IPA-001", name="iPad Pro 12.9\"", serial_number="SN-IPAD-003", model="Apple iPad Pro", status=AssetStatus.available, description="M1, 256GB, Wi-Fi"),
+                Asset(asset_tag="THI-001", name="ThinkPad X1 Carbon", serial_number="SN-TPAD-004", model="Lenovo ThinkPad", status=AssetStatus.available, description="Intel i7, 16GB RAM, 512GB SSD"),
+                Asset(asset_tag="SON-001", name="Sony WH-1000XM4", serial_number="SN-SONY-005", model="Sony Headphones", status=AssetStatus.available, description="Active Noise Cancelling Headphones")
             ]
             for asset in assets_to_seed:
                 db.add(asset)
@@ -66,10 +66,10 @@ if settings.BACKEND_CORS_ORIGINS:
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
 from fastapi.responses import JSONResponse
-from app.exceptions import DashboardException
+from app.exceptions import AssetFlowException
 
-@app.exception_handler(DashboardException)
-async def dashboard_exception_handler(request, exc: DashboardException):
+@app.exception_handler(AssetFlowException)
+async def assetflow_exception_handler(request, exc: AssetFlowException):
     return JSONResponse(
         status_code=exc.status_code,
         content={

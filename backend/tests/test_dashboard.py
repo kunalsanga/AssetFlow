@@ -5,11 +5,11 @@ from sqlalchemy.future import select
 
 from app.models.user import User, UserRole
 from app.models.department import Department
-from app.models.asset import Asset
-from app.models.asset_allocation import AssetAllocation
+from app.models.asset import Asset, AssetStatus
+from app.models.allocation import Allocation, AllocationStatus, AllocationToType
 from app.models.booking import Booking
 from app.models.maintenance_request import MaintenanceRequest
-from app.models.transfer_request import TransferRequest
+from app.models.transfer import TransferRequest, TransferRequestStatus
 from app.models.activity_log import ActivityLog
 from app.repositories.dashboard_repository import dashboard_repo
 from app.services.dashboard_service import dashboard_service
@@ -19,8 +19,8 @@ pytestmark = pytest.mark.asyncio
 
 async def seed_data(db: AsyncSession):
     # Create Departments
-    dept_eng = Department(name="Engineering", status="Active")
-    dept_sales = Department(name="Sales", status="Active")
+    dept_eng = Department(name="Engineering", code="ENG", status="Active")
+    dept_sales = Department(name="Sales", code="SALES", status="Active")
     db.add_all([dept_eng, dept_sales])
     await db.commit()
     await db.refresh(dept_eng)
@@ -88,38 +88,38 @@ async def seed_data(db: AsyncSession):
     await db.commit()
 
     # Create Assets
-    # Asset 1: AVAILABLE, Engineering, managed by Manager Eng, not shared
+    # Asset 1: available, Engineering, managed by Manager Eng, not shared
     asset1 = Asset(
         asset_tag="AF-001",
         name="Laptop Eng Available",
-        status="AVAILABLE",
+        status=AssetStatus.available,
         department_id=dept_eng.id,
         managed_by_id=manager_eng.id,
         is_shared=False,
     )
-    # Asset 2: ALLOCATED, Engineering, managed by Manager Eng, not shared
+    # Asset 2: allocated, Engineering, managed by Manager Eng, not shared
     asset2 = Asset(
         asset_tag="AF-002",
         name="Laptop Eng Allocated",
-        status="ALLOCATED",
+        status=AssetStatus.allocated,
         department_id=dept_eng.id,
         managed_by_id=manager_eng.id,
         is_shared=False,
     )
-    # Asset 3: AVAILABLE, Sales, managed by Manager Sales, SHARED
+    # Asset 3: available, Sales, managed by Manager Sales, SHARED
     asset3 = Asset(
         asset_tag="AF-003",
         name="Projector Shared",
-        status="AVAILABLE",
+        status=AssetStatus.available,
         department_id=dept_sales.id,
         managed_by_id=manager_sales.id,
         is_shared=True,
     )
-    # Asset 4: ALLOCATED, Sales, managed by Manager Sales, not shared
+    # Asset 4: allocated, Sales, managed by Manager Sales, not shared
     asset4 = Asset(
         asset_tag="AF-004",
         name="Laptop Sales Allocated",
-        status="ALLOCATED",
+        status=AssetStatus.allocated,
         department_id=dept_sales.id,
         managed_by_id=manager_sales.id,
         is_shared=False,
@@ -133,26 +133,30 @@ async def seed_data(db: AsyncSession):
 
     # Create Allocations
     today = date.today()
-    # Allocation 1: Asset 2 allocated to Employee Eng, overdue (expected_return_date = today - 2 days)
-    alloc1 = AssetAllocation(
+    # Allocation 1: Asset 2 allocated to Employee Eng, overdue (due_date = today - 2 days)
+    alloc1 = Allocation(
         asset_id=asset2.id,
-        user_id=emp_eng.id,
-        department_id=dept_eng.id,
+        allocated_to_type=AllocationToType.user,
+        allocated_to_id=emp_eng.id,
+        allocated_by_id=admin_user.id,
         allocated_at=datetime.utcnow() - timedelta(days=10),
-        expected_return_date=today - timedelta(days=2),
-        returned_at=None,
+        due_date=datetime.combine(today - timedelta(days=2), datetime.min.time()),
+        status=AllocationStatus.overdue,
     )
-    # Allocation 2: Asset 4 allocated to Employee Sales, upcoming return (expected_return_date = today + 3 days)
-    alloc2 = AssetAllocation(
+    # Allocation 2: Asset 4 allocated to Employee Sales, upcoming return (due_date = today + 3 days)
+    alloc2 = Allocation(
         asset_id=asset4.id,
-        user_id=emp_sales.id,
-        department_id=dept_sales.id,
+        allocated_to_type=AllocationToType.user,
+        allocated_to_id=emp_sales.id,
+        allocated_by_id=admin_user.id,
         allocated_at=datetime.utcnow() - timedelta(days=5),
-        expected_return_date=today + timedelta(days=3),
-        returned_at=None,
+        due_date=datetime.combine(today + timedelta(days=3), datetime.min.time()),
+        status=AllocationStatus.active,
     )
     db.add_all([alloc1, alloc2])
     await db.commit()
+    await db.refresh(alloc1)
+    await db.refresh(alloc2)
 
     # Create Bookings
     # Booking 1: Asset 3 booked by Employee Eng, status ONGOING
@@ -199,11 +203,12 @@ async def seed_data(db: AsyncSession):
     # Create Transfer Requests
     # Transfer 1: Asset 2 from Employee Eng to Employee Sales, status PENDING
     transfer1 = TransferRequest(
-        asset_id=asset2.id,
-        from_user_id=emp_eng.id,
-        to_user_id=emp_sales.id,
-        department_id=dept_sales.id,
-        status="PENDING",
+        allocation_id=alloc1.id,
+        requested_by_id=emp_eng.id,
+        target_type="user",
+        target_id=emp_sales.id,
+        status=TransferRequestStatus.pending,
+        created_at=datetime.utcnow(),
     )
     db.add_all([transfer1])
     await db.commit()
@@ -256,7 +261,7 @@ async def test_repository_summary_admin(db: AsyncSession):
     assert summary["maintenanceToday"] == 1
     # Active bookings: 1 (booking1 on asset3, status ONGOING)
     assert summary["activeBookings"] == 1
-    # Pending transfers: 1 (transfer1, status PENDING)
+    # Pending transfers: 1 (transfer1, status pending)
     assert summary["pendingTransfers"] == 1
     # Upcoming returns: 1 (alloc2 expected today+3)
     assert summary["upcomingReturns"] == 1
@@ -398,4 +403,3 @@ async def test_service_error_handling(db: AsyncSession):
         await dashboard_service.get_dashboard_data(mock_db, User(id=1, email="test@test.com", role=UserRole.employee))
     
     assert "Dashboard could not be loaded" in str(exc_info.value)
-

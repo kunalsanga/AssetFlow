@@ -7,6 +7,7 @@ class Department(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True, nullable=False, unique=True)
+    code = Column(String, unique=True, index=True, nullable=False)
     head_id = Column(Integer, ForeignKey("users.id", use_alter=True, name="fk_department_head"), nullable=True)
     status = Column(String, default="Active", nullable=False)
     parent_id = Column(Integer, ForeignKey("departments.id", name="fk_department_parent"), nullable=True)
