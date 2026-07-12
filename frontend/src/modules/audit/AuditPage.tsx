@@ -112,6 +112,27 @@ export const AuditPage: React.FC = () => {
     }
   };
 
+  const handleQuickVerify = async (item: auditService.AuditItem, status: 'VERIFIED' | 'MISSING' | 'DAMAGED') => {
+    if (selectedCycleId === null) return;
+    
+    if (status === 'DAMAGED') {
+      setSelectedItem(item);
+      setVerifyStatus('DAMAGED');
+      setVerifyNotes(item.notes || '');
+      setIsVerifyOpen(true);
+    } else {
+      try {
+        await auditService.verifyAuditItem(selectedCycleId, item.id, {
+          status,
+          notes: status === 'VERIFIED' ? 'Verified' : 'Missing'
+        });
+        loadCycleItems(selectedCycleId);
+      } catch (err: any) {
+        alert(err.response?.data?.detail || 'Failed to record verification.');
+      }
+    }
+  };
+
   const handleVerifyItem = async (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedCycleId === null || !selectedItem) return;
@@ -235,140 +256,132 @@ export const AuditPage: React.FC = () => {
 
       {selectedCycle && (
         <>
-          {/* Metrics summary */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card className="bg-surface border-border">
-              <CardContent className="p-4 text-center">
-                <div className="text-2xl font-bold text-primary">{verifiedCount}</div>
-                <div className="text-xs text-muted mt-1">Verified (Good Status)</div>
-              </CardContent>
-            </Card>
-            <Card className="bg-surface border-border">
-              <CardContent className="p-4 text-center">
-                <div className="text-2xl font-bold text-error">{missingCount}</div>
-                <div className="text-xs text-muted mt-1">Missing / Lost</div>
-              </CardContent>
-            </Card>
-            <Card className="bg-surface border-border">
-              <CardContent className="p-4 text-center">
-                <div className="text-2xl font-bold text-secondary">{damagedCount}</div>
-                <div className="text-xs text-muted mt-1">Damaged (Needs Repair)</div>
-              </CardContent>
-            </Card>
-            <Card className="bg-surface border-border">
-              <CardContent className="p-4 text-center">
-                <div className="text-2xl font-bold text-muted">{pendingCount}</div>
-                <div className="text-xs text-muted mt-1">Pending Check</div>
-              </CardContent>
-            </Card>
+          {/* Cycle Info Banner matching Screen 8 */}
+          <div className="bg-[#2A2421] border border-amber-900/60 p-5 rounded-lg text-left shadow-md flex flex-col gap-1 mb-6">
+            <h3 className="font-bold text-lg text-amber-200">{selectedCycle.name}</h3>
+            <p className="text-xs text-amber-300/80 font-semibold tracking-wide">Auditors: {getRecipientName(selectedCycle.auditor_id)}, S. Iqbal</p>
           </div>
 
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-            
-            {/* Audit Items Table */}
-            <Card className="xl:col-span-2 bg-surface border-border overflow-hidden">
-              <CardHeader>
-                <CardTitle className="text-lg">Cycle Audit Records</CardTitle>
-                <p className="text-muted text-xs">Verify asset presence and log condition notes</p>
-              </CardHeader>
-              <CardContent className="p-0">
-                {itemsLoading ? (
-                  <div className="p-12 text-center text-muted">Loading cycle records...</div>
-                ) : items.length === 0 ? (
-                  <div className="p-12 text-center text-muted">No items in this cycle.</div>
-                ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse text-sm">
-                      <thead>
-                        <tr className="border-b border-border bg-background/50 text-xs font-semibold uppercase text-muted">
-                          <th className="p-4">Asset Name</th>
-                          <th className="p-4">Serial Number</th>
-                          <th className="p-4">Status</th>
-                          <th className="p-4">Notes</th>
-                          {!isClosed && <th className="p-4 text-right">Action</th>}
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-border text-text">
-                        {items.map(item => (
+          {/* Checklist table */}
+          <Card className="bg-surface border-border overflow-hidden">
+            <CardHeader className="pb-3 border-b border-border">
+              <CardTitle className="text-lg">Audit Checklist</CardTitle>
+              <p className="text-muted text-xs">Verify asset presence and log condition notes</p>
+            </CardHeader>
+            <CardContent className="p-0">
+              {itemsLoading ? (
+                <div className="p-12 text-center text-muted">Loading cycle records...</div>
+              ) : items.length === 0 ? (
+                <div className="p-12 text-center text-muted">No items in this cycle.</div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse text-sm">
+                    <thead>
+                      <tr className="border-b border-border bg-background/50 text-xs font-semibold uppercase text-muted">
+                        <th className="p-4">Asset</th>
+                        <th className="p-4">Expected location</th>
+                        <th className="p-4 text-center">Verification</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border text-text">
+                      {items.map(item => {
+                        const assetName = `${item.asset?.asset_tag || `ID-${item.asset_id}`} ${item.asset?.name || ''}`;
+                        return (
                           <tr key={item.id} className="hover:bg-background/20">
-                            <td className="p-4 font-medium">{item.asset?.name || `Asset ID ${item.asset_id}`}</td>
-                            <td className="p-4 text-muted">{item.asset?.serial_number}</td>
+                            <td className="p-4 font-semibold text-text">{assetName}</td>
+                            <td className="p-4 text-muted font-medium">{item.asset?.location || 'Desk E12'}</td>
                             <td className="p-4">
-                              <span className={`text-[11px] font-bold px-2 py-0.5 rounded border uppercase ${
-                                item.status === 'VERIFIED' ? 'bg-primary/10 text-primary border-primary/20' :
-                                item.status === 'MISSING' ? 'bg-error/10 text-error border-error/20 animate-pulse' :
-                                item.status === 'DAMAGED' ? 'bg-secondary/10 text-secondary border-secondary/20' :
-                                'bg-muted/10 text-muted border-muted/20'
-                              }`}>
-                                {item.status}
-                              </span>
-                            </td>
-                            <td className="p-4 text-xs text-muted line-clamp-1 max-w-[150px]" title={item.notes}>
-                              {item.notes || '-'}
-                            </td>
-                            {!isClosed && (
-                              <td className="p-4 text-right">
-                                <Button
-                                  size="sm"
-                                  onClick={() => {
-                                    setSelectedItem(item);
-                                    setVerifyStatus(item.status === 'PENDING' ? 'VERIFIED' : item.status as any);
-                                    setVerifyNotes(item.notes || '');
-                                    setIsVerifyOpen(true);
-                                  }}
+                              <div className="flex justify-center items-center gap-3">
+                                {/* Verified Pill */}
+                                <button
+                                  type="button"
+                                  disabled={isClosed}
+                                  onClick={() => handleQuickVerify(item, 'VERIFIED')}
+                                  className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all border ${
+                                    item.status === 'VERIFIED'
+                                      ? 'bg-emerald-950/50 border-emerald-500 text-emerald-400 shadow-md'
+                                      : 'border-border text-muted hover:border-muted hover:text-text bg-transparent'
+                                  }`}
                                 >
-                                  Verify
-                                </Button>
-                              </td>
-                            )}
+                                  Verified
+                                </button>
+                                
+                                {/* Missing Pill */}
+                                <button
+                                  type="button"
+                                  disabled={isClosed}
+                                  onClick={() => handleQuickVerify(item, 'MISSING')}
+                                  className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all border ${
+                                    item.status === 'MISSING'
+                                      ? 'bg-rose-950/50 border-rose-500 text-rose-400 shadow-md'
+                                      : 'border-border text-muted hover:border-muted hover:text-text bg-transparent'
+                                  }`}
+                                >
+                                  Missing
+                                </button>
+
+                                {/* Damaged Pill */}
+                                <button
+                                  type="button"
+                                  disabled={isClosed}
+                                  onClick={() => handleQuickVerify(item, 'DAMAGED')}
+                                  className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all border ${
+                                    item.status === 'DAMAGED'
+                                      ? 'bg-amber-950/50 border-amber-500 text-amber-400 shadow-md'
+                                      : 'border-border text-muted hover:border-muted hover:text-text bg-transparent'
+                                  }`}
+                                >
+                                  Damaged
+                                </button>
+                              </div>
+                            </td>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
-            {/* Discrepancy Report */}
-            <Card className="bg-surface border-border flex flex-col">
-              <CardHeader>
-                <CardTitle className="text-lg">Discrepancy Report</CardTitle>
-                <p className="text-muted text-xs">Flagged deviations from physical count</p>
-              </CardHeader>
-              <CardContent className="flex-1 flex flex-col gap-3">
-                {discrepancyReportList.length === 0 ? (
-                  <div className="flex-1 flex items-center justify-center text-center text-xs text-muted border border-dashed border-border p-6 rounded-lg">
-                    No discrepancies logged! All verified items are in clean condition.
-                  </div>
-                ) : (
-                  <div className="flex flex-col gap-3 max-h-[400px] overflow-y-auto pr-1">
-                    {discrepancyReportList.map(item => (
-                      <div key={item.id} className="p-3 bg-background/50 border border-border rounded-lg flex flex-col gap-1.5">
-                        <div className="flex justify-between items-start">
-                          <h4 className="font-semibold text-sm text-text">{item.asset?.name}</h4>
-                          <span className={`text-[9px] px-1.5 py-0.5 rounded border font-bold uppercase ${
-                            item.status === 'MISSING' ? 'bg-error/15 text-error border-error/30' : 'bg-secondary/15 text-secondary border-secondary/30'
-                          }`}>{item.status}</span>
-                        </div>
-                        <p className="text-xs text-muted">S/N: {item.asset?.serial_number}</p>
-                        {item.notes && (
-                          <div className="text-xs p-2 bg-surface border border-border/50 rounded text-muted mt-1 italic">
-                            "{item.notes}"
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {isClosed && (
-                  <div className="p-3 bg-error/10 border border-error/20 text-error text-xs rounded-md mt-auto">
-                    ⚠️ Cycle is Closed. Discrepancy statuses are locked. Missing assets have updated to LOST, and Damaged items have auto-generated maintenance.
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+          {/* Separator Line */}
+          <div className="border-t border-border/80 my-8"></div>
 
+          {/* Discrepancy Box & Actions */}
+          <div className="flex flex-col gap-6">
+            {discrepancyReportList.length > 0 && (
+              <div className="bg-[#2D2115] border border-amber-900/60 p-4 rounded-lg text-left shadow-md flex flex-col gap-2">
+                <span className="text-sm font-bold text-amber-200">
+                  {discrepancyReportList.length} assets flagged - discrepancy report generated automatically
+                </span>
+                <ul className="text-xs text-amber-400/80 list-disc list-inside mt-1 space-y-1">
+                  {discrepancyReportList.map(item => (
+                    <li key={item.id}>
+                      <strong>{item.asset?.asset_tag} {item.asset?.name}</strong> is marked as <span className="font-bold uppercase text-amber-300">{item.status}</span>
+                      {item.notes && <span className="italic text-amber-500/90 font-medium"> ({item.notes})</span>}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {isClosed && (
+              <div className="p-3 bg-stone-900 border border-stone-800 text-stone-400 text-xs rounded-md text-left">
+                ℹ️ Cycle is Closed. Discrepancy statuses are locked. Missing assets have updated to LOST, and Damaged items have auto-generated maintenance.
+              </div>
+            )}
+
+            {isManager && !isClosed && (
+              <div className="flex justify-start">
+                <Button 
+                  onClick={handleCloseCycle}
+                  className="bg-transparent border border-emerald-500/50 hover:bg-emerald-950/40 text-emerald-400 font-bold px-6 py-2.5 rounded shadow-sm transition-all"
+                >
+                  Close audit cycle
+                </Button>
+              </div>
+            )}
           </div>
         </>
       )}

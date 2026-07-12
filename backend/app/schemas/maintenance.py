@@ -10,18 +10,21 @@ class MaintenanceRequestBase(BaseModel):
     priority: Optional[str] = "MEDIUM"
     status: Optional[str] = "PENDING"
     scheduled_date: Optional[date] = None
+    technician_name: Optional[str] = None
 
 class MaintenanceRequestCreate(BaseModel):
     asset_id: int
     description: str
     priority: Optional[str] = "MEDIUM"
     scheduled_date: Optional[date] = None
+    technician_name: Optional[str] = None
 
 class MaintenanceRequestUpdate(BaseModel):
     status: Optional[str] = None
     priority: Optional[str] = None
     scheduled_date: Optional[date] = None
     description: Optional[str] = None
+    technician_name: Optional[str] = None
 
 class MaintenanceRequestInDBBase(MaintenanceRequestBase):
     id: Optional[int] = None

@@ -7,8 +7,9 @@ export interface MaintenanceRequest {
   requester_id: number;
   description?: string;
   priority: 'LOW' | 'MEDIUM' | 'HIGH';
-  status: 'PENDING' | 'APPROVED' | 'IN_PROGRESS' | 'RESOLVED' | 'REJECTED';
+  status: 'PENDING' | 'APPROVED' | 'ASSIGNED' | 'IN_PROGRESS' | 'RESOLVED' | 'REJECTED';
   scheduled_date?: string;
+  technician_name?: string;
   asset?: Asset;
   requester?: User;
 }
@@ -23,6 +24,7 @@ export const createMaintenanceRequest = async (request: {
   description: string;
   priority: 'LOW' | 'MEDIUM' | 'HIGH';
   scheduled_date?: string;
+  technician_name?: string;
 }): Promise<MaintenanceRequest> => {
   const response = await api.post('/maintenance/', request);
   return response.data;
@@ -35,9 +37,14 @@ export const approveMaintenanceRequest = async (id: number): Promise<Maintenance
 
 export const assignTechnician = async (
   id: number,
-  assignData: { scheduled_date: string }
+  assignData: { scheduled_date: string; technician_name: string }
 ): Promise<MaintenanceRequest> => {
   const response = await api.post(`/maintenance/${id}/assign`, assignData);
+  return response.data;
+};
+
+export const startMaintenanceRequest = async (id: number): Promise<MaintenanceRequest> => {
+  const response = await api.post(`/maintenance/${id}/start`);
   return response.data;
 };
 

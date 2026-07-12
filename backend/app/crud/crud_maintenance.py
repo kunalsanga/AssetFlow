@@ -37,9 +37,17 @@ class CRUDMaintenanceRequest(CRUDBase[MaintenanceRequest, MaintenanceRequestCrea
         db.refresh(db_obj)
         return db_obj
 
-    def assign_technician(self, db: Session, *, db_obj: MaintenanceRequest, scheduled_date: date) -> MaintenanceRequest:
-        db_obj.status = "IN_PROGRESS"
+    def assign_technician(self, db: Session, *, db_obj: MaintenanceRequest, scheduled_date: date, technician_name: str) -> MaintenanceRequest:
+        db_obj.status = "ASSIGNED"
         db_obj.scheduled_date = scheduled_date
+        db_obj.technician_name = technician_name
+        db.add(db_obj)
+        db.commit()
+        db.refresh(db_obj)
+        return db_obj
+
+    def start_work(self, db: Session, *, db_obj: MaintenanceRequest) -> MaintenanceRequest:
+        db_obj.status = "IN_PROGRESS"
         db.add(db_obj)
         db.commit()
         db.refresh(db_obj)

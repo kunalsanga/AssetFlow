@@ -56,12 +56,18 @@ def run_verification():
         assert test_asset.status == AssetStatus.under_maintenance, f"Asset status should transition to UNDER_MAINTENANCE, got {test_asset.status}"
         print("Rule 2 Check Passed: Request approved. Status is APPROVED, asset transitions to UNDER_MAINTENANCE.")
 
-        # 4. Test Rule: Assign technician schedule (sets status to IN_PROGRESS)
+        # 4. Test Rule: Assign technician schedule (sets status to ASSIGNED)
         today_date = date.today()
-        assigned = crud.maintenance_request.assign_technician(db, db_obj=maint_req, scheduled_date=today_date)
-        assert assigned.status == "IN_PROGRESS", f"Expected IN_PROGRESS, got {assigned.status}"
+        assigned = crud.maintenance_request.assign_technician(db, db_obj=maint_req, scheduled_date=today_date, technician_name="R. Varma")
+        assert assigned.status == "ASSIGNED", f"Expected ASSIGNED, got {assigned.status}"
         assert assigned.scheduled_date == today_date, "Scheduled date not matching!"
-        print("Rule 3 Check Passed: Technician assigned. Status is IN_PROGRESS, scheduled date logged.")
+        assert assigned.technician_name == "R. Varma", "Technician name not matching!"
+        print("Rule 3 Check Passed: Technician assigned. Status is ASSIGNED, scheduled date and technician logged.")
+
+        # 4.5. Test Rule: Start work (sets status to IN_PROGRESS)
+        in_progress = crud.maintenance_request.start_work(db, db_obj=maint_req)
+        assert in_progress.status == "IN_PROGRESS", f"Expected IN_PROGRESS, got {in_progress.status}"
+        print("Rule 3.5 Check Passed: Work started. Status is IN_PROGRESS.")
 
         # 5. Test Rule: Resolve request (sets request to RESOLVED, asset back to AVAILABLE)
         resolved = crud.maintenance_request.resolve_request(db, db_obj=maint_req, resolution_condition="AVAILABLE")

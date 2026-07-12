@@ -12,6 +12,7 @@ class MaintenanceRequest(Base):
     priority = Column(String, default="MEDIUM", nullable=False)
     status = Column(String, default="PENDING", nullable=False)
     scheduled_date = Column(Date, nullable=True)
+    technician_name = Column(String, nullable=True)
 
     # Relationships
     asset = relationship("Asset", foreign_keys=[asset_id])

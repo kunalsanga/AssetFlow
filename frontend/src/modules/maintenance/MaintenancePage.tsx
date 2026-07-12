@@ -27,6 +27,7 @@ export const MaintenancePage: React.FC = () => {
   const [raiseDescription, setRaiseDescription] = useState<string>('');
   const [raisePriority, setRaisePriority] = useState<'LOW' | 'MEDIUM' | 'HIGH'>('MEDIUM');
   const [assignDate, setAssignDate] = useState<string>('');
+  const [assignTechName, setAssignTechName] = useState<string>('');
   const [resolveCondition, setResolveCondition] = useState<'AVAILABLE' | 'RETIRED' | 'LOST'>('AVAILABLE');
 
   const [formError, setFormError] = useState<string | null>(null);
@@ -99,18 +100,29 @@ export const MaintenancePage: React.FC = () => {
 
   const handleAssign = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedRequest || !assignDate) return;
+    if (!selectedRequest || !assignDate || !assignTechName) return;
     
     try {
       await maintenanceService.assignTechnician(selectedRequest.id, {
-        scheduled_date: new Date(assignDate).toISOString().split('T')[0]
+        scheduled_date: new Date(assignDate).toISOString().split('T')[0],
+        technician_name: assignTechName
       });
       setIsAssignModalOpen(false);
       setSelectedRequest(null);
       setAssignDate('');
+      setAssignTechName('');
       loadData();
     } catch (err: any) {
       alert(err.response?.data?.detail || 'Failed to schedule repair.');
+    }
+  };
+
+  const handleStartWork = async (id: number) => {
+    try {
+      await maintenanceService.startMaintenanceRequest(id);
+      loadData();
+    } catch (err: any) {
+      alert(err.response?.data?.detail || 'Failed to start repair.');
     }
   };
 
@@ -134,8 +146,9 @@ export const MaintenancePage: React.FC = () => {
   // Group Requests for columns
   const pendingRequests = requests.filter(r => r.status === 'PENDING');
   const approvedRequests = requests.filter(r => r.status === 'APPROVED');
+  const assignedRequests = requests.filter(r => r.status === 'ASSIGNED');
   const inProgressRequests = requests.filter(r => r.status === 'IN_PROGRESS');
-  const resolvedRequests = requests.filter(r => r.status === 'RESOLVED' || r.status === 'REJECTED');
+  const resolvedRequests = requests.filter(r => r.status === 'RESOLVED');
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -166,26 +179,24 @@ export const MaintenancePage: React.FC = () => {
       ) : error ? (
         <div className="p-12 text-center text-error">{error}</div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-6">
           
-          {/* Column 1: Pending Approval */}
+          {/* Column 1: Pending */}
           <div className="flex flex-col gap-4">
             <div className="flex justify-between items-center bg-surface border border-border p-3 rounded-lg">
-              <span className="font-semibold text-text">Pending Approval</span>
+              <span className="font-semibold text-text">Pending</span>
               <span className="text-xs font-bold px-2 py-0.5 bg-background border border-border rounded-full">{pendingRequests.length}</span>
             </div>
-            <div className="flex flex-col gap-3 min-h-[400px] bg-surface/20 border border-dashed border-border/60 p-2 rounded-lg">
+            <div className="flex flex-col gap-3 min-h-[450px] bg-surface/20 border border-dashed border-border/60 p-2 rounded-lg">
               {pendingRequests.length === 0 ? (
-                <div className="text-center text-muted text-xs p-6">No pending requests</div>
+                <div className="text-center text-muted text-xs p-6 italic">No pending requests</div>
               ) : (
                 pendingRequests.map(req => (
-                  <div key={req.id} className="p-4 rounded-lg bg-surface border border-border flex flex-col gap-3 hover:border-muted transition-colors">
-                    <div>
-                      <div className="flex justify-between items-start gap-2">
-                        <h4 className="font-semibold text-sm text-text">{req.asset?.name || `Asset ID ${req.asset_id}`}</h4>
-                        <span className={`text-[9px] px-1.5 py-0.5 rounded border font-bold ${getPriorityColor(req.priority)}`}>{req.priority}</span>
-                      </div>
-                      <p className="text-xs text-muted mt-2 line-clamp-3">{req.description}</p>
+                  <div key={req.id} className="p-4 rounded-lg bg-surface border border-border flex flex-col gap-3 hover:border-muted hover:scale-[1.02] hover:shadow-lg transition-all duration-200">
+                    <div className="flex flex-col text-left">
+                      <span className="text-[11px] font-bold text-muted tracking-wide uppercase">{req.asset?.asset_tag || `ID-${req.asset_id}`}</span>
+                      <h4 className="font-semibold text-sm text-text mt-0.5">{req.asset?.name || "Asset"}</h4>
+                      <p className="text-xs text-muted mt-2 leading-relaxed">{req.description}</p>
                     </div>
                     {isManager && (
                       <div className="flex gap-2 mt-1">
@@ -199,34 +210,35 @@ export const MaintenancePage: React.FC = () => {
             </div>
           </div>
 
-          {/* Column 2: Approved / Scheduled */}
+          {/* Column 2: Approved */}
           <div className="flex flex-col gap-4">
             <div className="flex justify-between items-center bg-surface border border-border p-3 rounded-lg">
-              <span className="font-semibold text-text">Approved / Scheduled</span>
+              <span className="font-semibold text-text">Approved</span>
               <span className="text-xs font-bold px-2 py-0.5 bg-background border border-border rounded-full">{approvedRequests.length}</span>
             </div>
-            <div className="flex flex-col gap-3 min-h-[400px] bg-surface/20 border border-dashed border-border/60 p-2 rounded-lg">
+            <div className="flex flex-col gap-3 min-h-[450px] bg-surface/20 border border-dashed border-border/60 p-2 rounded-lg">
               {approvedRequests.length === 0 ? (
-                <div className="text-center text-muted text-xs p-6">No scheduled requests</div>
+                <div className="text-center text-muted text-xs p-6 italic">No approved requests</div>
               ) : (
                 approvedRequests.map(req => (
-                  <div key={req.id} className="p-4 rounded-lg bg-surface border border-border flex flex-col gap-3 hover:border-muted transition-colors">
-                    <div>
-                      <div className="flex justify-between items-start gap-2">
-                        <h4 className="font-semibold text-sm text-text">{req.asset?.name || `Asset ID ${req.asset_id}`}</h4>
-                        <span className={`text-[9px] px-1.5 py-0.5 rounded border font-bold ${getPriorityColor(req.priority)}`}>{req.priority}</span>
-                      </div>
-                      <p className="text-xs text-muted mt-2 line-clamp-3">{req.description}</p>
+                  <div key={req.id} className="p-4 rounded-lg bg-surface border border-border flex flex-col gap-3 hover:border-muted hover:scale-[1.02] hover:shadow-lg transition-all duration-200">
+                    <div className="flex flex-col text-left">
+                      <span className="text-[11px] font-bold text-muted tracking-wide uppercase">{req.asset?.asset_tag || `ID-${req.asset_id}`}</span>
+                      <h4 className="font-semibold text-sm text-text mt-0.5">{req.asset?.name || "Asset"}</h4>
+                      <p className="text-xs text-muted mt-2 leading-relaxed">{req.description}</p>
                     </div>
                     {isManager && (
                       <Button
                         size="sm"
+                        className="w-full text-xs"
                         onClick={() => {
                           setSelectedRequest(req);
                           setIsAssignModalOpen(true);
+                          setAssignTechName("");
+                          setAssignDate("");
                         }}
                       >
-                        Start Progress
+                        Assign Tech
                       </Button>
                     )}
                   </div>
@@ -235,37 +247,33 @@ export const MaintenancePage: React.FC = () => {
             </div>
           </div>
 
-          {/* Column 3: In Progress */}
+          {/* Column 3: Technician assigned */}
           <div className="flex flex-col gap-4">
             <div className="flex justify-between items-center bg-surface border border-border p-3 rounded-lg">
-              <span className="font-semibold text-primary">In Progress</span>
-              <span className="text-xs font-bold px-2 py-0.5 bg-background border border-border rounded-full text-primary">{inProgressRequests.length}</span>
+              <span className="font-semibold text-text">Technician assigned</span>
+              <span className="text-xs font-bold px-2 py-0.5 bg-background border border-border rounded-full">{assignedRequests.length}</span>
             </div>
-            <div className="flex flex-col gap-3 min-h-[400px] bg-surface/20 border border-dashed border-border/60 p-2 rounded-lg">
-              {inProgressRequests.length === 0 ? (
-                <div className="text-center text-muted text-xs p-6">No tasks in progress</div>
+            <div className="flex flex-col gap-3 min-h-[450px] bg-surface/20 border border-dashed border-border/60 p-2 rounded-lg">
+              {assignedRequests.length === 0 ? (
+                <div className="text-center text-muted text-xs p-6 italic">No technicians assigned</div>
               ) : (
-                inProgressRequests.map(req => (
-                  <div key={req.id} className="p-4 rounded-lg bg-surface border border-border flex flex-col gap-3 hover:border-primary/40 transition-colors">
-                    <div>
-                      <div className="flex justify-between items-start gap-2">
-                        <h4 className="font-semibold text-sm text-text">{req.asset?.name || `Asset ID ${req.asset_id}`}</h4>
-                        <span className={`text-[9px] px-1.5 py-0.5 rounded border font-bold ${getPriorityColor(req.priority)}`}>{req.priority}</span>
-                      </div>
-                      <p className="text-xs text-muted mt-2 line-clamp-3">{req.description}</p>
+                assignedRequests.map(req => (
+                  <div key={req.id} className="p-4 rounded-lg bg-surface border border-border flex flex-col gap-3 hover:border-muted hover:scale-[1.02] hover:shadow-lg transition-all duration-200">
+                    <div className="flex flex-col text-left">
+                      <span className="text-[11px] font-bold text-muted tracking-wide uppercase">{req.asset?.asset_tag || `ID-${req.asset_id}`}</span>
+                      <h4 className="font-semibold text-sm text-text mt-0.5">{req.asset?.name || "Asset"}</h4>
+                      <p className="text-xs text-secondary font-medium mt-2">tech: {req.technician_name || "R. Varma"}</p>
                       {req.scheduled_date && (
-                        <p className="text-[11px] text-primary mt-2">Scheduled: {new Date(req.scheduled_date).toLocaleDateString()}</p>
+                        <p className="text-[10px] text-muted mt-0.5">Date: {new Date(req.scheduled_date).toLocaleDateString()}</p>
                       )}
                     </div>
                     {isManager && (
                       <Button
                         size="sm"
-                        onClick={() => {
-                          setSelectedRequest(req);
-                          setIsResolveModalOpen(true);
-                        }}
+                        className="w-full text-xs bg-secondary hover:bg-secondary/80 text-background"
+                        onClick={() => handleStartWork(req.id)}
                       >
-                        Resolve Issue
+                        Start Repair
                       </Button>
                     )}
                   </div>
@@ -274,27 +282,66 @@ export const MaintenancePage: React.FC = () => {
             </div>
           </div>
 
-          {/* Column 4: Resolved / History */}
+          {/* Column 4: In Progress */}
           <div className="flex flex-col gap-4">
             <div className="flex justify-between items-center bg-surface border border-border p-3 rounded-lg">
-              <span className="font-semibold text-muted">History / Resolved</span>
-              <span className="text-xs font-bold px-2 py-0.5 bg-background border border-border rounded-full text-muted">{resolvedRequests.length}</span>
+              <span className="font-semibold text-primary">in progress</span>
+              <span className="text-xs font-bold px-2 py-0.5 bg-background border border-border rounded-full text-primary">{inProgressRequests.length}</span>
             </div>
-            <div className="flex flex-col gap-3 min-h-[400px] bg-surface/20 border border-dashed border-border/60 p-2 rounded-lg">
-              {resolvedRequests.length === 0 ? (
-                <div className="text-center text-muted text-xs p-6">No historical records</div>
+            <div className="flex flex-col gap-3 min-h-[450px] bg-surface/20 border border-dashed border-border/60 p-2 rounded-lg">
+              {inProgressRequests.length === 0 ? (
+                <div className="text-center text-muted text-xs p-6 italic">No tasks in progress</div>
               ) : (
-                resolvedRequests.map(req => (
-                  <div key={req.id} className="p-4 rounded-lg bg-surface border border-border/50 flex flex-col gap-2 opacity-80">
-                    <div className="flex justify-between items-start gap-2">
-                      <h4 className="font-semibold text-sm text-muted">{req.asset?.name || `Asset ID ${req.asset_id}`}</h4>
-                      <span className={`text-[9px] px-1.5 py-0.5 rounded border font-bold uppercase ${
-                        req.status === 'RESOLVED' ? 'bg-primary/10 text-primary border-primary/20' : 'bg-error/10 text-error border-error/20'
-                      }`}>{req.status}</span>
+                inProgressRequests.map(req => (
+                  <div key={req.id} className="p-4 rounded-lg bg-surface border border-border flex flex-col gap-3 hover:border-primary/40 hover:scale-[1.02] hover:shadow-lg transition-all duration-200">
+                    <div className="flex flex-col text-left">
+                      <span className="text-[11px] font-bold text-muted tracking-wide uppercase">{req.asset?.asset_tag || `ID-${req.asset_id}`}</span>
+                      <h4 className="font-semibold text-sm text-text mt-0.5">{req.asset?.name || "Asset"}</h4>
+                      <p className="text-xs text-muted mt-2 leading-relaxed">{req.description}</p>
+                      <p className="text-[10px] text-primary mt-2">Active Tech: {req.technician_name || "R. Varma"}</p>
                     </div>
-                    <p className="text-xs text-muted line-clamp-2">{req.description}</p>
+                    {isManager && (
+                      <Button
+                        size="sm"
+                        className="w-full text-xs"
+                        onClick={() => {
+                          setSelectedRequest(req);
+                          setIsResolveModalOpen(true);
+                        }}
+                      >
+                        Resolve
+                      </Button>
+                    )}
                   </div>
                 ))
+              )}
+            </div>
+          </div>
+
+          {/* Column 5: Resolved */}
+          <div className="flex flex-col gap-4">
+            <div className="flex justify-between items-center bg-surface border border-border p-3 rounded-lg">
+              <span className="font-semibold text-emerald-400">Resolved</span>
+              <span className="text-xs font-bold px-2 py-0.5 bg-background border border-border rounded-full text-emerald-400">{resolvedRequests.length}</span>
+            </div>
+            <div className="flex flex-col gap-3 min-h-[450px] bg-surface/20 border border-dashed border-border/60 p-2 rounded-lg">
+              {resolvedRequests.length === 0 ? (
+                <div className="text-center text-muted text-xs p-6 italic">No resolved records</div>
+              ) : (
+                resolvedRequests.map(req => {
+                  const dateStr = req.scheduled_date 
+                    ? new Date(req.scheduled_date).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })
+                    : '7 Jul';
+                  return (
+                    <div key={req.id} className="p-4 rounded-lg bg-emerald-950/30 border border-emerald-800/80 text-emerald-100 flex flex-col gap-2 hover:scale-[1.02] hover:shadow-lg transition-all duration-200">
+                      <div className="flex flex-col text-left">
+                        <span className="text-[11px] font-bold text-emerald-400/70 tracking-wide uppercase">{req.asset?.asset_tag || `ID-${req.asset_id}`}</span>
+                        <h4 className="font-semibold text-sm text-white mt-0.5">{req.asset?.name || "Asset"}</h4>
+                        <p className="text-xs text-emerald-200 mt-2">resolved {dateStr}</p>
+                      </div>
+                    </div>
+                  );
+                })
               )}
             </div>
           </div>
@@ -386,8 +433,17 @@ export const MaintenancePage: React.FC = () => {
             <CardContent>
               <form onSubmit={handleAssign} className="flex flex-col gap-4">
                 <p className="text-sm text-muted">
-                  Assign technician schedule and start repair work on <strong>{selectedRequest.asset?.name || `Asset ID ${selectedRequest.asset_id}`}</strong>.
+                  Assign technician schedule and technician name on <strong>{selectedRequest.asset?.name || `Asset ID ${selectedRequest.asset_id}`}</strong>.
                 </p>
+
+                {/* Technician Name */}
+                <Input
+                  label="Technician Name"
+                  placeholder="e.g. R. Varma"
+                  value={assignTechName}
+                  onChange={(e) => setAssignTechName(e.target.value)}
+                  required
+                />
 
                 {/* Scheduled Date */}
                 <Input
