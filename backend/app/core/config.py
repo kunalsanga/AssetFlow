@@ -22,14 +22,18 @@ class Settings(BaseSettings):
         raise ValueError(v)
 
     # Database
-    POSTGRES_SERVER: str
-    POSTGRES_USER: str
-    POSTGRES_PASSWORD: str
-    POSTGRES_DB: str
-    POSTGRES_PORT: str
+    DATABASE_URL: str | None = None
+    POSTGRES_SERVER: str = "localhost"
+    POSTGRES_USER: str = "postgres"
+    POSTGRES_PASSWORD: str = "postgres"
+    POSTGRES_DB: str = "assetflow"
+    POSTGRES_PORT: str = "5432"
 
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> str:
+        if self.DATABASE_URL:
+            # SQLAlchemy 1.4+ dropped support for postgres:// scheme
+            return self.DATABASE_URL.replace("postgres://", "postgresql://")
         return f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", case_sensitive=True)
