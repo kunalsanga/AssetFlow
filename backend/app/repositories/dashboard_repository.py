@@ -25,11 +25,12 @@ class DashboardRepository:
         dept_id = user.department_id
         
         today_start = datetime.combine(today, datetime.min.time())
-        today_end = datetime.combine(today, datetime.max.time())
         today_plus_7_end = datetime.combine(today + timedelta(days=7), datetime.max.time())
 
+        # Base queries definitions with filters
+        
         # 1. Assets Available
-        available_stmt = select(func.count(Asset.id)).where(Asset.status == "available")
+        available_stmt = select(func.count(Asset.id)).where(Asset.status == "AVAILABLE")
         if role == UserRole.asset_manager:
             available_stmt = available_stmt.where(Asset.managed_by_id == user_id)
         elif role == UserRole.department_head:
@@ -40,7 +41,7 @@ class DashboardRepository:
             )
 
         # 2. Assets Allocated
-        allocated_stmt = select(func.count(Asset.id)).where(Asset.status == "allocated")
+        allocated_stmt = select(func.count(Asset.id)).where(Asset.status == "ALLOCATED")
         if role == UserRole.asset_manager:
             allocated_stmt = allocated_stmt.where(Asset.managed_by_id == user_id)
         elif role == UserRole.department_head:
@@ -86,10 +87,10 @@ class DashboardRepository:
         elif role == UserRole.department_head:
             transfers_stmt = transfers_stmt.join(Allocation, TransferRequest.allocation_id == Allocation.id).join(Asset, Allocation.asset_id == Asset.id).where(Asset.department_id == dept_id)
         elif role == UserRole.employee:
-            transfers_stmt = transfers_stmt.where(
+            transfers_stmt = transfers_stmt.join(Allocation, TransferRequest.allocation_id == Allocation.id).where(
                 or_(
                     TransferRequest.requested_by_id == user_id,
-                    and_(TransferRequest.target_type == "user", TransferRequest.target_id == user_id)
+                    and_(TransferRequest.target_type == "user", TransferRequest.target_id == user_id),
                 )
             )
 
@@ -230,15 +231,17 @@ class DashboardRepository:
                 Asset.department_id == dept_id
             )
         elif role == UserRole.employee:
-            pending_trans_stmt = pending_trans_stmt.where(
+            pending_trans_stmt = pending_trans_stmt.join(Allocation, TransferRequest.allocation_id == Allocation.id).where(
                 or_(
                     TransferRequest.requested_by_id == user_id,
-                    and_(TransferRequest.target_type == "user", TransferRequest.target_id == user_id)
+                    and_(TransferRequest.target_type == "user", TransferRequest.target_id == user_id),
                 )
             )
 
         # 4. Audit Cycle Activity check (last 30 days)
         audit_stmt = select(func.count(ActivityLog.id))
+        # Exclude filter for role if we want general audit cycle status
+        # Since audit cycles are admin/manager concerns, we check if any exists
         thirty_days_ago = datetime.combine(today - timedelta(days=30), datetime.min.time())
         audit_stmt = audit_stmt.where(
             ActivityLog.type == "AUDIT_CYCLE", ActivityLog.created_at >= thirty_days_ago

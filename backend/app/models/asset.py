@@ -16,7 +16,7 @@ class Asset(Base):
     __tablename__ = "assets"
 
     id = Column(Integer, primary_key=True, index=True)
-    asset_tag = Column(String, unique=True, index=True, nullable=False)
+    asset_tag = Column(String, unique=True, index=True, nullable=True)
     name = Column(String, index=True, nullable=False)
     status = Column(SQLEnum(AssetStatus), default=AssetStatus.available, index=True, nullable=False)
     department_id = Column(Integer, ForeignKey("departments.id", name="fk_asset_department"), nullable=True)

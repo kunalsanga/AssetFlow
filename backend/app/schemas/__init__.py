@@ -1,5 +1,5 @@
 from .token import Token, TokenPayload
-from .user import User, UserCreate, UserUpdate
+from .user import User, UserCreate, UserUpdate, UserResponse
 from .asset import Asset, AssetCreate, AssetUpdate
 from .allocation import AllocationCreate, AllocationUpdate, AllocationReturn, AllocationResponse
 from .transfer import TransferRequestCreate, TransferRequestUpdate, TransferRequestResponse
@@ -39,3 +39,6 @@ from .employee import (
     EmployeeListResponse,
     EmployeeDropdownListResponse,
 )
+from .booking import BookingCreate, BookingUpdate, BookingResponse
+from .maintenance import MaintenanceRequestCreate, MaintenanceRequestUpdate, MaintenanceRequestResponse
+from .audit import AuditCycleCreate, AuditCycleResponse, AuditItemUpdate, AuditItemResponse
