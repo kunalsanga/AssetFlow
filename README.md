@@ -4,7 +4,9 @@
 
 AssetFlow is a robust, full-stack application built for the Odoo Hackathon. This repository contains the foundational architecture.
 
-# 📸 Application Screenshots (Deployed Link: https://asset-flow-beige.vercel.app/ )
+# 📸 Application Screenshots 
+(Deployed Link: https://asset-flow-beige.vercel.app/ )
+(Demo Video: https://drive.google.com/file/d/1libZo_rthUADfe4g3hYneCHe8ilxmi8t/view?usp=sharing)
 
 Below are screenshots demonstrating the key features and user interface of the AssetFlow Enterprise Asset & Resource Management System.
 
