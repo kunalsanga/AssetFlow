@@ -5,7 +5,9 @@ import { useAuth } from '../../context/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/common/Card';
 import { Input } from '../../components/common/Input';
 import { Button } from '../../components/common/Button';
-import { cn } from '../../lib/utils';
+import { mockUsers } from '../../mock/auth.mock';
+
+const USE_MOCK_DATA = import.meta.env.VITE_USE_MOCK_DATA === 'true';
 
 export const Login = () => {
   const [email, setEmail] = useState('');
@@ -27,6 +29,16 @@ export const Login = () => {
     }
   };
 
+  const handleMockLogin = async (mockEmail: string) => {
+    setError('');
+    try {
+      await login(mockEmail, 'mock_password');
+      navigate('/dashboard');
+    } catch (err) {
+      setError('Mock login failed');
+    }
+  };
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4 font-sans">
       <Card className="w-full max-w-md bg-surface border-border shadow-xl">
@@ -38,6 +50,33 @@ export const Login = () => {
           <p className="text-sm text-muted">Log in to your AssetFlow account</p>
         </CardHeader>
         <CardContent className="pb-8">
+          {USE_MOCK_DATA && (
+            <div className="mb-6 space-y-2">
+              <p className="text-xs text-muted text-center font-medium uppercase tracking-wider">Quick Demo Login</p>
+              <div className="grid grid-cols-2 gap-2">
+                {Object.values(mockUsers).map(u => (
+                  <Button 
+                    key={u.email} 
+                    type="button" 
+                    variant="outline" 
+                    className="text-xs py-1 h-auto"
+                    onClick={() => handleMockLogin(u.email)}
+                  >
+                    {u.role.replace('_', ' ')}
+                  </Button>
+                ))}
+              </div>
+              <div className="relative py-2">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-border"></span>
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-surface px-2 text-muted">Or continue with email</span>
+                </div>
+              </div>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-5">
             <Input
               label="Email"

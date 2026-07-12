@@ -16,7 +16,7 @@ import { useAuth } from '../../context/AuthContext';
 
 const navItems = [
   { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-  { name: 'Organization Setup', path: '/organization', icon: Building2, roles: ['admin'] },
+  { name: 'Organization Setup', path: '/organization', icon: Building2, roles: ['super_admin', 'admin'] },
   { name: 'Assets', path: '/assets', icon: Laptop },
   { name: 'Allocation & Transfer', path: '/allocation', icon: ArrowRightLeft },
   { name: 'Resource Booking', path: '/bookings', icon: CalendarClock },

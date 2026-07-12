@@ -25,7 +25,7 @@ def create_audit_cycle(
     *,
     db: Session = Depends(deps.get_db),
     cycle_in: schemas.AuditCycleCreate,
-    current_user: models.User = Depends(deps.require_role([models.UserRole.admin, models.UserRole.asset_manager]))
+    current_user: models.User = Depends(deps.require_role([models.UserRole.super_admin, models.UserRole.admin, models.UserRole.asset_manager]))
 ) -> Any:
     """Create a new audit cycle. Automatically populates item records for all assets."""
     return crud.audit.create_cycle(db, obj_in=cycle_in)
@@ -101,7 +101,7 @@ def close_audit_cycle(
     *,
     db: Session = Depends(deps.get_db),
     id: int,
-    current_user: models.User = Depends(deps.require_role([models.UserRole.admin, models.UserRole.asset_manager]))
+    current_user: models.User = Depends(deps.require_role([models.UserRole.super_admin, models.UserRole.admin, models.UserRole.asset_manager]))
 ) -> Any:
     """Close and lock an audit cycle. Updates asset statuses and logs activity. Admin/Manager only."""
     try:
