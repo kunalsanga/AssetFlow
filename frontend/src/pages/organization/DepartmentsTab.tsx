@@ -1,21 +1,56 @@
-import React, { useState } from 'react';
-import { Plus, Edit2, Trash2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Plus, Edit2, Trash2, AlertTriangle } from 'lucide-react';
 import { Button } from '../../components/common/Button';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../components/ui/Table';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { Modal } from '../../components/ui/Modal';
 import { Input } from '../../components/common/Input';
-
-const mockDepartments = [
-  { id: '1', name: 'Engineering', head: 'Sarah Connor', parent: '-', status: 'active' },
-  { id: '2', name: 'Facilities', head: 'John Smith', parent: 'Operations', status: 'active' },
-  { id: '3', name: 'Field Operations', head: 'Mike Johnson', parent: 'Operations', status: 'active' },
-  { id: '4', name: 'Human Resources', head: 'Emily Davis', parent: '-', status: 'active' },
-  { id: '5', name: 'Finance', head: 'Robert Wilson', parent: '-', status: 'inactive' },
-];
+import { getDepartments, Department } from '../../services/organization.service';
 
 export const DepartmentsTab = () => {
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  useEffect(() => {
+    loadDepartments();
+  }, []);
+
+  const loadDepartments = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await getDepartments();
+      setDepartments(data);
+    } catch (err) {
+      setError("Failed to load departments.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getDepartmentName = (id: number | null) => {
+    if (!id) return '-';
+    const dept = departments.find(d => d.id === id);
+    return dept ? dept.name : '-';
+  };
+
+  if (loading) {
+    return <div className="p-8 text-center text-muted animate-pulse">Loading departments...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="p-8 text-center">
+        <div className="inline-flex items-center gap-2 text-rose-600 bg-rose-50 px-4 py-3 rounded-lg">
+          <AlertTriangle size={20} />
+          <span>{error}</span>
+          <Button onClick={loadDepartments} variant="outline" size="sm" className="ml-4">Retry</Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -31,22 +66,22 @@ export const DepartmentsTab = () => {
         <TableHeader>
           <TableRow>
             <TableHead>Department Name</TableHead>
-            <TableHead>Department Head</TableHead>
+            <TableHead>Department Code</TableHead>
             <TableHead>Parent Department</TableHead>
             <TableHead>Status</TableHead>
             <TableHead className="w-[100px] text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {mockDepartments.map((dept) => (
+          {departments.map((dept) => (
             <TableRow key={dept.id}>
               <TableCell className="font-medium text-text">{dept.name}</TableCell>
-              <TableCell>{dept.head}</TableCell>
-              <TableCell>{dept.parent}</TableCell>
+              <TableCell>{dept.code}</TableCell>
+              <TableCell>{getDepartmentName(dept.parent_id)}</TableCell>
               <TableCell>
                 <StatusBadge 
-                  status={dept.status === 'active' ? 'Active' : 'Inactive'} 
-                  type={dept.status === 'active' ? 'active' : 'inactive'} 
+                  status={dept.status === 'Active' ? 'Active' : 'Inactive'} 
+                  type={dept.status === 'Active' ? 'active' : 'inactive'} 
                 />
               </TableCell>
               <TableCell className="text-right">
@@ -71,29 +106,23 @@ export const DepartmentsTab = () => {
       >
         <div className="space-y-4">
           <Input label="Department Name" placeholder="e.g. Marketing" />
-          
-          <div className="space-y-1">
-            <label className="text-sm font-medium text-text">Department Head</label>
-            <select className="w-full bg-background border border-border rounded-md px-3 py-2 text-sm text-text focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50">
-              <option value="">Select an employee...</option>
-              <option value="1">Sarah Connor</option>
-              <option value="2">John Smith</option>
-            </select>
-          </div>
+          <Input label="Department Code" placeholder="e.g. MKT" />
           
           <div className="space-y-1">
             <label className="text-sm font-medium text-text">Parent Department (Optional)</label>
             <select className="w-full bg-background border border-border rounded-md px-3 py-2 text-sm text-text focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50">
               <option value="">None</option>
-              <option value="1">Operations</option>
+              {departments.map(d => (
+                <option key={d.id} value={d.id}>{d.name}</option>
+              ))}
             </select>
           </div>
           
           <div className="space-y-1">
             <label className="text-sm font-medium text-text">Status</label>
             <select className="w-full bg-background border border-border rounded-md px-3 py-2 text-sm text-text focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50">
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
             </select>
           </div>
           

@@ -1,57 +1,45 @@
-import api from './api';
+import { mockDashboardData } from '../mock/dashboard';
 
-export interface DashboardSummary {
-  assetsAvailable: number;
-  assetsAllocated: number;
-  maintenanceToday: number;
-  activeBookings: number;
-  pendingTransfers: number;
-  upcomingReturns: number;
-  overdueReturns: number;
-}
-
-export interface DashboardAlert {
-  id: number;
-  severity: 'HIGH' | 'MEDIUM' | 'INFO';
-  title: string;
+export interface OverdueAlert {
+  active: boolean;
+  count: number;
   message: string;
 }
 
-export interface RecentActivity {
-  id: number;
-  title: string;
-  type: string;
-  createdAt: string;
+export interface StatItem {
+  value: string;
+  trend: string;
+  trendDirection: 'up' | 'down' | 'neutral';
 }
 
-export interface QuickActions {
-  registerAsset: boolean;
-  bookResource: boolean;
-  raiseMaintenance: boolean;
+export interface DashboardStats {
+  assetsAvailable: StatItem;
+  assetsAllocated: StatItem;
+  maintenanceToday: StatItem;
+  activeBookings: StatItem;
+  pendingTransfers: StatItem;
+  upcomingReturns: StatItem;
 }
 
-export interface DashboardUser {
+export interface Activity {
   id: number;
-  name: string;
-  role: string;
-  department?: string;
+  type: 'allocation' | 'booking' | 'maintenance' | 'transfer' | 'audit';
+  assetCode?: string;
+  resourceName?: string;
+  user?: string;
+  duration?: string;
+  status?: string;
+  time: string;
 }
 
 export interface DashboardData {
-  summary: DashboardSummary;
-  alerts: DashboardAlert[];
-  recentActivities: RecentActivity[];
-  quickActions: QuickActions;
-  user: DashboardUser;
+  overdueAlert: OverdueAlert;
+  stats: DashboardStats;
+  recentActivities: Activity[];
 }
 
-export interface DashboardResponse {
-  success: boolean;
-  message: string;
-  data: DashboardData;
-}
-
-export const getDashboardData = async (): Promise<DashboardData> => {
-  const response = await api.get<DashboardResponse>('/dashboard');
-  return response.data.data;
+export const getDashboardStats = async (): Promise<DashboardData> => {
+  // Simulate network delay
+  await new Promise(resolve => setTimeout(resolve, 500));
+  return Promise.resolve(mockDashboardData as DashboardData);
 };

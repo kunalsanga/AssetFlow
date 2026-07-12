@@ -1,23 +1,48 @@
-import React, { useState } from 'react';
-import { Search, Filter, ShieldAlert } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, Filter, ShieldAlert, AlertTriangle } from 'lucide-react';
 import { Button } from '../../components/common/Button';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../components/ui/Table';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { Modal } from '../../components/ui/Modal';
-
-const mockEmployees = [
-  { id: '1', name: 'Alice Walker', email: 'alice.w@company.com', dept: 'Engineering', role: 'admin', status: 'active' },
-  { id: '2', name: 'Bob Chen', email: 'bob.c@company.com', dept: 'Engineering', role: 'employee', status: 'active' },
-  { id: '3', name: 'Charlie Davis', email: 'charlie.d@company.com', dept: 'Facilities', role: 'asset_manager', status: 'active' },
-  { id: '4', name: 'Diana Prince', email: 'diana.p@company.com', dept: 'Human Resources', role: 'department_head', status: 'active' },
-  { id: '5', name: 'Evan Wright', email: 'evan.w@company.com', dept: 'Finance', role: 'employee', status: 'inactive' },
-];
+import { getEmployees, Employee, getDepartments, Department } from '../../services/organization.service';
 
 export const EmployeeDirectoryTab = () => {
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
-  const [selectedEmp, setSelectedEmp] = useState<any>(null);
+  const [selectedEmp, setSelectedEmp] = useState<Employee | null>(null);
 
-  const openRoleModal = (emp: any) => {
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const [empData, deptData] = await Promise.all([
+        getEmployees(),
+        getDepartments()
+      ]);
+      setEmployees(empData);
+      setDepartments(deptData);
+    } catch (err) {
+      setError("Failed to load employee data.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getDepartmentName = (deptId: number | null) => {
+    if (!deptId) return 'Unassigned';
+    const dept = departments.find(d => d.id === deptId);
+    return dept ? dept.name : 'Unknown';
+  };
+
+  const openRoleModal = (emp: Employee) => {
     setSelectedEmp(emp);
     setIsRoleModalOpen(true);
   };
@@ -30,6 +55,22 @@ export const EmployeeDirectoryTab = () => {
       default: return <StatusBadge status="Employee" type="success" />;
     }
   };
+
+  if (loading) {
+    return <div className="p-8 text-center text-muted animate-pulse">Loading employee directory...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="p-8 text-center">
+        <div className="inline-flex items-center gap-2 text-rose-600 bg-rose-50 px-4 py-3 rounded-lg">
+          <AlertTriangle size={20} />
+          <span>{error}</span>
+          <Button onClick={loadData} variant="outline" size="sm" className="ml-4">Retry</Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -62,22 +103,22 @@ export const EmployeeDirectoryTab = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {mockEmployees.map((emp) => (
+          {employees.map((emp) => (
             <TableRow key={emp.id}>
               <TableCell>
                 <div>
-                  <div className="font-medium text-text">{emp.name}</div>
+                  <div className="font-medium text-text">{emp.full_name}</div>
                   <div className="text-xs text-muted">{emp.email}</div>
                 </div>
               </TableCell>
-              <TableCell>{emp.dept}</TableCell>
+              <TableCell>{getDepartmentName(emp.department_id)}</TableCell>
               <TableCell>
                 {getRoleBadge(emp.role)}
               </TableCell>
               <TableCell>
                 <StatusBadge 
-                  status={emp.status === 'active' ? 'Active' : 'Inactive'} 
-                  type={emp.status === 'active' ? 'active' : 'inactive'} 
+                  status={emp.is_active ? 'Active' : 'Inactive'} 
+                  type={emp.is_active ? 'active' : 'inactive'} 
                 />
               </TableCell>
               <TableCell className="text-right">
@@ -104,7 +145,7 @@ export const EmployeeDirectoryTab = () => {
         {selectedEmp && (
           <div className="space-y-4">
             <div className="p-3 bg-background rounded-md border border-border">
-              <div className="font-medium text-text">{selectedEmp.name}</div>
+              <div className="font-medium text-text">{selectedEmp.full_name}</div>
               <div className="text-sm text-muted">{selectedEmp.email}</div>
             </div>
             

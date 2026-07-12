@@ -1,20 +1,50 @@
-import React, { useState } from 'react';
-import { Plus, Edit2, Trash2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Plus, Edit2, Trash2, AlertTriangle } from 'lucide-react';
 import { Button } from '../../components/common/Button';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../components/ui/Table';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { Modal } from '../../components/ui/Modal';
 import { Input } from '../../components/common/Input';
-
-const mockCategories = [
-  { id: '1', name: 'Electronics', description: 'Laptops, monitors, tablets, etc.', count: 450, status: 'active' },
-  { id: '2', name: 'Furniture', description: 'Desks, chairs, filing cabinets', count: 820, status: 'active' },
-  { id: '3', name: 'Vehicles', description: 'Company cars, vans, trucks', count: 12, status: 'active' },
-  { id: '4', name: 'Equipment', description: 'Specialized testing and manufacturing tools', count: 85, status: 'active' },
-];
+import { getAssetCategories, AssetCategory } from '../../services/organization.service';
 
 export const AssetCategoriesTab = () => {
+  const [categories, setCategories] = useState<AssetCategory[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  useEffect(() => {
+    loadCategories();
+  }, []);
+
+  const loadCategories = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await getAssetCategories();
+      setCategories(data);
+    } catch (err) {
+      setError("Failed to load asset categories.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return <div className="p-8 text-center text-muted animate-pulse">Loading asset categories...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="p-8 text-center">
+        <div className="inline-flex items-center gap-2 text-rose-600 bg-rose-50 px-4 py-3 rounded-lg">
+          <AlertTriangle size={20} />
+          <span>{error}</span>
+          <Button onClick={loadCategories} variant="outline" size="sm" className="ml-4">Retry</Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -37,7 +67,7 @@ export const AssetCategoriesTab = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {mockCategories.map((cat) => (
+          {categories.map((cat) => (
             <TableRow key={cat.id}>
               <TableCell className="font-medium text-text">{cat.name}</TableCell>
               <TableCell className="text-muted">{cat.description}</TableCell>
