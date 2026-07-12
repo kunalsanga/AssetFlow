@@ -9,6 +9,7 @@ class AssetBase(BaseModel):
     model: Optional[str] = None
     status: Optional[AssetStatus] = AssetStatus.available
     description: Optional[str] = None
+    location: Optional[str] = None
 
 # Properties to receive via API on creation
 class AssetCreate(AssetBase):

@@ -27,6 +27,7 @@ class Asset(Base):
     model = Column(String, nullable=True)
     description = Column(String, nullable=True)
     purchase_date = Column(Date, nullable=True)
+    location = Column(String, nullable=True)
 
     # Relationships
     department = relationship("Department", foreign_keys=[department_id])

@@ -6,8 +6,9 @@ export interface MaintenanceRequest {
   requester_id: number;
   description?: string;
   priority: 'LOW' | 'MEDIUM' | 'HIGH';
-  status: 'PENDING' | 'APPROVED' | 'IN_PROGRESS' | 'RESOLVED' | 'REJECTED';
+  status: 'PENDING' | 'APPROVED' | 'ASSIGNED' | 'IN_PROGRESS' | 'RESOLVED' | 'REJECTED';
   scheduled_date?: string;
+  technician_name?: string;
   asset?: Asset;
   requester?: User;
 }

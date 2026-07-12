@@ -21,6 +21,7 @@ export const createMaintenanceRequest = async (request: {
   description: string;
   priority: 'LOW' | 'MEDIUM' | 'HIGH';
   scheduled_date?: string;
+  technician_name?: string;
 }): Promise<MaintenanceRequest> => {
   if (USE_MOCK_DATA) {
     await new Promise(resolve => setTimeout(resolve, 500));
@@ -43,7 +44,7 @@ export const approveMaintenanceRequest = async (id: number): Promise<Maintenance
 
 export const assignTechnician = async (
   id: number,
-  assignData: { scheduled_date: string }
+  assignData: { scheduled_date: string; technician_name: string }
 ): Promise<MaintenanceRequest> => {
   if (USE_MOCK_DATA) {
     await new Promise(resolve => setTimeout(resolve, 500));
@@ -51,6 +52,16 @@ export const assignTechnician = async (
   }
   
   const response = await api.post(`/maintenance/${id}/assign`, assignData);
+  return response.data;
+};
+
+export const startMaintenanceRequest = async (id: number): Promise<MaintenanceRequest> => {
+  if (USE_MOCK_DATA) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return { ...mockMaintenanceRequests[0], id, status: 'IN_PROGRESS' };
+  }
+  
+  const response = await api.post(`/maintenance/${id}/start`);
   return response.data;
 };
 

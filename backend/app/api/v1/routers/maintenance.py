@@ -71,7 +71,7 @@ def assign_technician(
     request_in: schemas.MaintenanceRequestUpdate,
     current_user: models.User = Depends(deps.require_role([models.UserRole.admin, models.UserRole.asset_manager]))
 ) -> Any:
-    """Assign technician schedule and start progress (changes request status to IN_PROGRESS)."""
+    """Assign technician schedule and technician name (changes request status to ASSIGNED)."""
     maint_req = crud.maintenance_request.get(db, id=id)
     if not maint_req:
         raise HTTPException(
@@ -91,9 +91,38 @@ def assign_technician(
             detail="Scheduled date is required for technician assignment."
         )
 
+    if not request_in.technician_name:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Technician name is required for technician assignment."
+        )
+
     return crud.maintenance_request.assign_technician(
-        db, db_obj=maint_req, scheduled_date=request_in.scheduled_date
+        db, db_obj=maint_req, scheduled_date=request_in.scheduled_date, technician_name=request_in.technician_name
     )
+
+@router.post("/{id}/start", response_model=schemas.MaintenanceRequestResponse)
+def start_maintenance(
+    *,
+    db: Session = Depends(deps.get_db),
+    id: int,
+    current_user: models.User = Depends(deps.require_role([models.UserRole.admin, models.UserRole.asset_manager]))
+) -> Any:
+    """Start work on an assigned maintenance request (transitions request status to IN_PROGRESS)."""
+    maint_req = crud.maintenance_request.get(db, id=id)
+    if not maint_req:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Maintenance request not found."
+        )
+    
+    if maint_req.status != "ASSIGNED":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Maintenance work can only start on assigned requests."
+        )
+
+    return crud.maintenance_request.start_work(db, db_obj=maint_req)
 
 @router.post("/{id}/resolve", response_model=schemas.MaintenanceRequestResponse)
 def resolve_maintenance(
@@ -111,10 +140,10 @@ def resolve_maintenance(
             detail="Maintenance request not found."
         )
 
-    if maint_req.status not in ["IN_PROGRESS", "APPROVED"]:
+    if maint_req.status not in ["IN_PROGRESS", "ASSIGNED", "APPROVED"]:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Request must be approved or in progress to resolve."
+            detail="Request must be approved, assigned, or in progress to resolve."
         )
 
     # Resolution condition note can be sent in the request description or passed as status
