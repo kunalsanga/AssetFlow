@@ -28,9 +28,13 @@ class CategoryResponse(BaseModel):
     code: str
     description: Optional[str] = None
     status: str
-    custom_fields: Optional[Dict[str, Any]] = None
+    optional_metadata: Optional[Dict[str, Any]] = None
 
     model_config = {"from_attributes": True}
+
+    @property
+    def custom_fields(self) -> Optional[Dict[str, Any]]:
+        return self.optional_metadata
 
 class CategoryDropdownResponse(BaseModel):
     id: int

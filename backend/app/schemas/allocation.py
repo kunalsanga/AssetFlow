@@ -1,44 +1,56 @@
-from typing import Optional, Any
+from typing import Optional, List
 from datetime import datetime
 from pydantic import BaseModel
 from app.models.allocation import AllocationToType, AllocationStatus
-from app.schemas.asset import Asset
-from app.schemas.user import User
-
-# Shared properties
-class AllocationBase(BaseModel):
-    asset_id: Optional[int] = None
-    allocated_to_type: Optional[AllocationToType] = None
-    allocated_to_id: Optional[int] = None
-    due_date: Optional[datetime] = None
-    returned_at: Optional[datetime] = None
-    return_condition: Optional[str] = None
-    status: Optional[AllocationStatus] = AllocationStatus.active
 
 # Properties to receive via API on creation
 class AllocationCreate(BaseModel):
     asset_id: int
-    allocated_to_type: AllocationToType
-    allocated_to_id: int
-    due_date: datetime
+    employee_id: Optional[int] = None
+    department_id: Optional[int] = None
+    allocated_to_type: AllocationToType = AllocationToType.user
+    allocated_to_id: Optional[int] = None
+    expected_return: datetime
+    notes: Optional[str] = None
 
-# Properties to receive via API on update
 class AllocationUpdate(BaseModel):
-    pass
+    expected_return: Optional[datetime] = None
+    notes: Optional[str] = None
 
 # Properties to receive via API on return
 class AllocationReturn(BaseModel):
-    return_condition: Optional[str] = None
+    return_notes: Optional[str] = None
+    condition_on_return: Optional[str] = None
 
 # Properties shared by models stored in DB
-class AllocationInDBBase(AllocationBase):
-    id: Optional[int] = None
-    allocated_by_id: Optional[int] = None
-    allocated_at: Optional[datetime] = None
+class AllocationResponse(BaseModel):
+    id: int
+    asset_id: int
+    employee_id: Optional[int] = None
+    department_id: Optional[int] = None
+    allocated_to_type: AllocationToType
+    allocated_to_id: int
+    allocated_by_id: int
+    allocated_at: datetime
+    due_date: datetime
+    expected_return: Optional[datetime] = None
+    returned_at: Optional[datetime] = None
+    return_condition: Optional[str] = None
+    return_notes: Optional[str] = None
+    condition_on_return: Optional[str] = None
+    status: AllocationStatus
 
     model_config = {"from_attributes": True}
 
-# Properties to return to client
-class AllocationResponse(AllocationInDBBase):
-    asset: Optional[Asset] = None
-    allocated_by: Optional[User] = None
+class AllocationListResponse(BaseModel):
+    items: List[AllocationResponse]
+    total: int
+    page: int
+    page_size: int
+    total_pages: int
+
+class AllocationDetailResponse(BaseModel):
+    success: bool
+    message: str
+    data: Optional[AllocationResponse] = None
+

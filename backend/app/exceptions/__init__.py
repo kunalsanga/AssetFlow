@@ -39,3 +39,14 @@ class ResourceNotFoundException(AssetFlowException):
     """Exception raised when a requested resource is not found"""
     def __init__(self, message: str = "Resource not found."):
         super().__init__(message=message, status_code=404)
+
+class DoubleAllocationException(AssetFlowException):
+    """Exception raised when an asset is already allocated"""
+    def __init__(self, message: str = "Asset is already allocated."):
+        super().__init__(message=message, status_code=409)
+
+class ValidationException(AssetFlowException):
+    """Exception raised when input validation fails in service layer"""
+    def __init__(self, message: str):
+        super().__init__(message=message, status_code=400)
+

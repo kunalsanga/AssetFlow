@@ -1,5 +1,9 @@
 from fastapi import APIRouter
-from app.api.v1.routers import auth, users, allocations, assets, bookings, maintenance, audits, dashboard, departments, categories, employees, reports
+from app.api.v1.routers import (
+    auth, users, allocations, assets, bookings, maintenance, audits, 
+    dashboard, departments, categories, employees, reports, 
+    dropdowns, notifications, transfers
+)
 
 api_router = APIRouter()
 api_router.include_router(auth.router, prefix="/auth", tags=["auth"])
@@ -14,4 +18,6 @@ api_router.include_router(departments.router, prefix="/departments", tags=["depa
 api_router.include_router(categories.router, prefix="/categories", tags=["categories"])
 api_router.include_router(employees.router, prefix="/employees", tags=["employees"])
 api_router.include_router(reports.router, prefix="/reports", tags=["reports"])
-
+api_router.include_router(dropdowns.router, prefix="/dropdowns", tags=["dropdowns"])
+api_router.include_router(notifications.router, prefix="/notifications", tags=["notifications"])
+api_router.include_router(transfers.router, prefix="/transfers", tags=["transfers"])

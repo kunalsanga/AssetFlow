@@ -31,11 +31,20 @@ class DepartmentResponse(BaseModel):
     id: int
     name: str
     code: str
-    head_id: Optional[int] = None
+    description: Optional[str] = None
+    department_head_id: Optional[int] = None
     status: str
-    parent_id: Optional[int] = None
+    parent_department_id: Optional[int] = None
 
     model_config = {"from_attributes": True}
+
+    @property
+    def head_id(self) -> Optional[int]:
+        return self.department_head_id
+
+    @property
+    def parent_id(self) -> Optional[int]:
+        return self.parent_department_id
 
 class DepartmentDropdownResponse(BaseModel):
     id: int
