@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import { createContext, FC, ReactNode, useState, useEffect, useContext } from 'react';
 import { User } from '../types';
 import * as authService from '../services/auth.service';
 
@@ -12,7 +12,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const mockAdminUser: User = {
     id: 1,
     email: 'admin@assetflow.com',
