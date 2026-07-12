@@ -5,13 +5,14 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '.
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { Modal } from '../../components/ui/Modal';
 import { Input } from '../../components/common/Input';
-import { getDepartments, Department } from '../../services/organization.service';
-
+import { getDepartments, createDepartment, updateDepartment, updateDepartmentStatus, Department } from '../../services/organization.service';
 export const DepartmentsTab = () => {
   const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formData, setFormData] = useState<Partial<Department>>({ status: 'Active' });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     loadDepartments();
@@ -36,6 +37,35 @@ export const DepartmentsTab = () => {
     return dept ? dept.name : '-';
   };
 
+  const handleCreate = async () => {
+    if (!formData.name || !formData.code) {
+      alert("Name and Code are required.");
+      return;
+    }
+    
+    try {
+      setIsSubmitting(true);
+      await createDepartment(formData);
+      setIsModalOpen(false);
+      setFormData({ status: 'Active' });
+      await loadDepartments();
+    } catch (err: any) {
+      alert(err.response?.data?.message || "Failed to create department");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleStatusToggle = async (dept: Department) => {
+    try {
+      const newStatus = dept.status === 'Active' ? 'Inactive' : 'Active';
+      await updateDepartmentStatus(dept.id, newStatus);
+      await loadDepartments();
+    } catch (err: any) {
+      alert(err.response?.data?.message || "Failed to update status");
+    }
+  };
+
   if (loading) {
     return <div className="p-8 text-center text-muted animate-pulse">Loading departments...</div>;
   }
@@ -56,7 +86,7 @@ export const DepartmentsTab = () => {
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-semibold text-text">Departments</h2>
-        <Button onClick={() => setIsModalOpen(true)} className="gap-2">
+        <Button onClick={() => { setFormData({ status: 'Active' }); setIsModalOpen(true); }} className="gap-2">
           <Plus size={16} />
           Add Department
         </Button>
@@ -86,10 +116,11 @@ export const DepartmentsTab = () => {
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex items-center justify-end gap-2">
-                  <button className="p-1.5 text-muted hover:text-primary hover:bg-primary/10 rounded transition-colors">
-                    <Edit2 size={16} />
-                  </button>
-                  <button className="p-1.5 text-muted hover:text-error hover:bg-error/10 rounded transition-colors">
+                  <button 
+                    onClick={() => handleStatusToggle(dept)}
+                    title={dept.status === 'Active' ? "Deactivate" : "Activate"}
+                    className="p-1.5 text-muted hover:text-error hover:bg-error/10 rounded transition-colors"
+                  >
                     <Trash2 size={16} />
                   </button>
                 </div>
@@ -105,12 +136,26 @@ export const DepartmentsTab = () => {
         title="Create New Department"
       >
         <div className="space-y-4">
-          <Input label="Department Name" placeholder="e.g. Marketing" />
-          <Input label="Department Code" placeholder="e.g. MKT" />
+          <Input 
+            label="Department Name" 
+            placeholder="e.g. Marketing" 
+            value={formData.name || ''}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          />
+          <Input 
+            label="Department Code" 
+            placeholder="e.g. MKT" 
+            value={formData.code || ''}
+            onChange={(e) => setFormData({ ...formData, code: e.target.value })}
+          />
           
           <div className="space-y-1">
             <label className="text-sm font-medium text-text">Parent Department (Optional)</label>
-            <select className="w-full bg-background border border-border rounded-md px-3 py-2 text-sm text-text focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50">
+            <select 
+              value={formData.parent_id || ''}
+              onChange={(e) => setFormData({ ...formData, parent_id: e.target.value ? Number(e.target.value) : undefined })}
+              className="w-full bg-background border border-border rounded-md px-3 py-2 text-sm text-text focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50"
+            >
               <option value="">None</option>
               {departments.map(d => (
                 <option key={d.id} value={d.id}>{d.name}</option>
@@ -120,15 +165,21 @@ export const DepartmentsTab = () => {
           
           <div className="space-y-1">
             <label className="text-sm font-medium text-text">Status</label>
-            <select className="w-full bg-background border border-border rounded-md px-3 py-2 text-sm text-text focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50">
+            <select 
+              value={formData.status || 'Active'}
+              onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
+              className="w-full bg-background border border-border rounded-md px-3 py-2 text-sm text-text focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50"
+            >
               <option value="Active">Active</option>
               <option value="Inactive">Inactive</option>
             </select>
           </div>
           
           <div className="flex justify-end gap-3 pt-4 border-t border-border mt-6">
-            <Button variant="outline" onClick={() => setIsModalOpen(false)}>Cancel</Button>
-            <Button onClick={() => setIsModalOpen(false)}>Create Department</Button>
+            <Button variant="outline" onClick={() => setIsModalOpen(false)} disabled={isSubmitting}>Cancel</Button>
+            <Button onClick={handleCreate} disabled={isSubmitting}>
+              {isSubmitting ? 'Creating...' : 'Create Department'}
+            </Button>
           </div>
         </div>
       </Modal>
