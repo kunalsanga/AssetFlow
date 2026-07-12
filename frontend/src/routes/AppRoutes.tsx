@@ -5,12 +5,6 @@ import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { ProtectedRoute } from './ProtectedRoute';
 import { useAuth } from '../context/AuthContext';
 import { Dashboard } from '../pages/Dashboard';
-import { Assets } from '../pages/Assets';
-import { Organization } from '../pages/Organization';
-import { Reports } from '../pages/Reports';
-import { Notifications } from '../pages/Notifications';
-
-import { Dashboard } from '../pages/Dashboard';
 import { Organization } from '../pages/Organization';
 import { Assets } from '../pages/Assets';
 import { AllocationPage as Allocation } from '../modules/allocation/AllocationPage';
