@@ -6,4 +6,6 @@ export interface Asset {
   status: string;
   description?: string;
   is_shared?: boolean;
+  asset_tag?: string;
+  location?: string;
 }
