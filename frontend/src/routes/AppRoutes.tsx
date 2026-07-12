@@ -6,10 +6,15 @@ import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { ProtectedRoute } from './ProtectedRoute';
 import { useAuth } from '../context/AuthContext';
 
-// Placeholder components for modules to be implemented by teammates
-const Dashboard = () => <div className="p-4">Dashboard Overview</div>;
-const Organization = () => <div className="p-4">Organization Setup (Admin Only)</div>;
-const Assets = () => <div className="p-4">Assets Module</div>;
+import { Dashboard } from '../pages/Dashboard';
+import { Organization } from '../pages/Organization';
+import { Assets } from '../pages/Assets';
+import { Allocation } from '../pages/Allocation';
+import { Bookings } from '../pages/Bookings';
+import { Maintenance } from '../pages/Maintenance';
+import { Audit } from '../pages/Audit';
+import { Reports } from '../pages/Reports';
+import { Notifications } from '../pages/Notifications';
 
 export const AppRoutes = () => {
   const { isAuthenticated, loading } = useAuth();
@@ -26,7 +31,12 @@ export const AppRoutes = () => {
         <Route element={<DashboardLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/assets" element={<Assets />} />
-          {/* Add other generic protected routes here */}
+          <Route path="/allocation" element={<Allocation />} />
+          <Route path="/bookings" element={<Bookings />} />
+          <Route path="/maintenance" element={<Maintenance />} />
+          <Route path="/audit" element={<Audit />} />
+          <Route path="/reports" element={<Reports />} />
+          <Route path="/notifications" element={<Notifications />} />
           
           <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
             <Route path="/organization" element={<Organization />} />
