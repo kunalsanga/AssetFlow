@@ -7,6 +7,7 @@ services:
     environment:
       - CHOKIDAR_USEPOLLING=true
       - VITE_API_URL=/api/v1
+      - VITE_USE_MOCK_DATA=false
     volumes:
       - ./frontend:/app
       - /app/node_modules
@@ -28,6 +29,7 @@ services:
       - POSTGRES_DB=${POSTGRES_DB:-assetflow}
       - POSTGRES_PORT=5432
       - SECRET_KEY=${SECRET_KEY:-949f538fa62bb2b0bcad31f6c498305f88410b0a880be0e527f311c82ec5cc7c}
+      - BACKEND_CORS_ORIGINS=["http://localhost:5173","http://frontend:5173"]
     volumes:
       - ./backend:/app
     networks:
