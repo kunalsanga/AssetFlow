@@ -31,4 +31,3 @@ class Asset(Base):
     department = relationship("Department", foreign_keys=[department_id])
     manager = relationship("User", foreign_keys=[managed_by_id])
     category = relationship("Category", foreign_keys=[category_id])
-

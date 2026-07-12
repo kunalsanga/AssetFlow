@@ -1,15 +1,17 @@
-
+import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import { Navbar } from './Navbar';
+import { Header } from './Header';
 import { Sidebar } from './Sidebar';
 
 export const DashboardLayout = () => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   return (
-    <div className="min-h-screen bg-background text-text flex flex-col">
-      <Navbar />
-      <div className="flex flex-1 overflow-hidden">
-        <Sidebar />
-        <main className="flex-1 overflow-y-auto p-6">
+    <div className="flex h-screen bg-background overflow-hidden text-text font-sans">
+      <Sidebar />
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <Header onMenuClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} />
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-background p-4 md:p-6 lg:p-8">
           <Outlet />
         </main>
       </div>
