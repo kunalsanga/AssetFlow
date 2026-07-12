@@ -30,17 +30,17 @@ export const Sidebar: React.FC = () => {
   const { user } = useAuth();
   
   return (
-    <aside className="w-64 bg-surface border-r border-border h-screen flex-col hidden md:flex sticky top-0 z-10">
-      <div className="h-16 px-6 border-b border-border flex items-center shrink-0">
-        <h1 className="text-xl font-bold text-text flex items-center gap-2">
-          <div className="w-8 h-8 rounded bg-primary/20 flex items-center justify-center text-primary shrink-0">
+    <aside className="w-64 bg-[#2e1065] border-r border-[#4c1d95] h-screen flex-col hidden md:flex sticky top-0 z-10 text-white shadow-xl">
+      <div className="h-20 px-6 border-b border-[#4c1d95] flex items-center shrink-0">
+        <h1 className="text-2xl font-bold flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-white text-[#2e1065] flex items-center justify-center shrink-0 shadow-sm">
             AF
           </div>
-          <span className="truncate">AssetFlow</span>
+          <span className="truncate tracking-tight">AssetFlow</span>
         </h1>
       </div>
       
-      <nav className="flex-1 overflow-y-auto p-4 space-y-1">
+      <nav className="flex-1 overflow-y-auto p-4 space-y-2 mt-4">
         {navItems.map((item) => {
           if (item.roles && user && !item.roles.includes(user.role)) {
             return null;
@@ -50,20 +50,20 @@ export const Sidebar: React.FC = () => {
               key={item.path}
               to={item.path}
               className={({ isActive }) => cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm font-medium",
+                "flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 text-sm font-medium",
                 isActive 
-                  ? "bg-primary/10 text-primary font-semibold" 
-                  : "text-muted hover:text-text hover:bg-background/50"
+                  ? "bg-white text-[#2e1065] font-semibold shadow-md translate-x-1" 
+                  : "text-[#c4b5fd] hover:text-white hover:bg-white/10"
               )}
             >
-              <item.icon size={18} className={cn("shrink-0")} />
+              <item.icon size={20} className={cn("shrink-0")} />
               {item.name}
             </NavLink>
           );
         })}
       </nav>
       
-      <div className="p-4 border-t border-border text-xs text-muted shrink-0 text-center">
+      <div className="p-6 border-t border-[#4c1d95] text-xs text-[#c4b5fd] shrink-0 text-center">
         &copy; 2026 AssetFlow
       </div>
     </aside>

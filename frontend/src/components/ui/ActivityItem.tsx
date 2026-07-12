@@ -9,11 +9,11 @@ interface ActivityItemProps {
 export const ActivityItem: React.FC<ActivityItemProps> = ({ icon, description, time }) => {
   return (
     <div className="flex items-start gap-4">
-      <div className="p-2 rounded-full bg-background border border-border text-primary shrink-0">
+      <div className="p-2.5 rounded-full bg-primary/10 text-primary shrink-0">
         {icon}
       </div>
-      <div className="flex-1 min-w-0 flex flex-col">
-        <p className="text-sm text-text">{description}</p>
+      <div className="flex-1 min-w-0 flex flex-col pt-1">
+        <p className="text-sm text-text leading-tight">{description}</p>
         <span className="text-xs text-muted mt-1">{time}</span>
       </div>
     </div>

@@ -20,8 +20,8 @@ export const Notifications = () => {
           <Bell size={24} />
         </div>
         <div>
-          <h1 className="text-3xl font-bold text-text">Activity Logs & Notifications</h1>
-          <p className="text-muted mt-1">Track system activity, alerts and workflow updates.</p>
+          <h1 className="text-[28px] font-bold text-text tracking-tight">Activity Logs & Notifications</h1>
+          <p className="text-muted mt-1 text-sm">Track system activity, alerts and workflow updates.</p>
         </div>
       </div>
 
@@ -52,3 +52,4 @@ export const Notifications = () => {
     </div>
   );
 };
+

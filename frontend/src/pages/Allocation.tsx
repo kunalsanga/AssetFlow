@@ -5,11 +5,11 @@ import { Card, CardContent } from '../components/common/Card';
 
 export const Allocation = () => {
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-10">
+    <div className="space-y-8 max-w-[1600px] mx-auto pb-12">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-text">Allocation & Transfer</h1>
-          <p className="text-muted mt-1">Manage asset allocation, transfers and returns.</p>
+          <h1 className="text-[28px] font-bold text-text tracking-tight">Allocation & Transfer</h1>
+          <p className="text-muted mt-1 text-sm">Manage asset allocation, transfers and returns.</p>
         </div>
         <Button className="gap-2 bg-secondary hover:bg-secondary/90">
           <ArrowRightLeft size={18} />
@@ -52,3 +52,4 @@ export const Allocation = () => {
     </div>
   );
 };
+

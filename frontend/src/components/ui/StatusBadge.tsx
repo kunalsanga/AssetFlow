@@ -10,19 +10,19 @@ interface StatusBadgeProps {
 }
 
 const statusStyles: Record<StatusType, string> = {
-  active: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
-  success: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
-  inactive: 'bg-gray-500/10 text-gray-400 border-gray-500/20',
-  pending: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20',
-  warning: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20',
-  error: 'bg-red-500/10 text-red-500 border-red-500/20',
-  info: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
+  active: 'bg-emerald-100 text-emerald-700',
+  success: 'bg-emerald-100 text-emerald-700',
+  inactive: 'bg-gray-100 text-gray-600',
+  pending: 'bg-amber-100 text-amber-700',
+  warning: 'bg-orange-100 text-orange-700',
+  error: 'bg-rose-100 text-rose-700',
+  info: 'bg-blue-100 text-blue-700',
 };
 
 export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, type = 'info', className }) => {
   return (
     <span className={cn(
-      "px-2.5 py-0.5 rounded-full text-xs font-medium border",
+      "px-3 py-1 rounded-full text-xs font-semibold tracking-wide",
       statusStyles[type],
       className
     )}>

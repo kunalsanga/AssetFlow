@@ -7,13 +7,13 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: '#121212',
-        surface: '#1e1e1e',
-        primary: '#4ade80', // Green accent matching wireframes
-        secondary: '#3b82f6',
-        text: '#f3f4f6',
-        muted: '#9ca3af',
-        border: '#374151',
+        background: '#f8fafc',
+        surface: '#ffffff',
+        primary: '#4f46e5',
+        secondary: '#a78bfa',
+        text: '#1f2937',
+        muted: '#6b7280',
+        border: '#e5e7eb',
         error: '#ef4444'
       }
     },

@@ -1,13 +1,13 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: #121212;
-  --color-surface: #1e1e1e;
-  --color-primary: #4ade80;
-  --color-secondary: #3b82f6;
-  --color-text: #f3f4f6;
-  --color-muted: #9ca3af;
-  --color-border: #374151;
+  --color-background: #f8fafc;
+  --color-surface: #ffffff;
+  --color-primary: #4f46e5;
+  --color-secondary: #a78bfa;
+  --color-text: #1f2937;
+  --color-muted: #6b7280;
+  --color-border: #e5e7eb;
   --color-error: #ef4444;
 }
 
@@ -20,17 +20,17 @@
 @layer components {
   /* Reusable button styles based on wireframes */
   .btn {
-    @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary disabled:pointer-events-none disabled:opacity-50;
+    @apply inline-flex items-center justify-center rounded-xl text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 shadow-sm;
   }
   .btn-primary {
-    @apply bg-primary text-background hover:bg-primary/90;
+    @apply bg-primary text-white hover:bg-primary/90;
   }
   .btn-outline {
-    @apply border border-border bg-transparent hover:bg-surface text-text;
+    @apply border border-border bg-surface hover:bg-background/80 text-text;
   }
   
   /* Input styles */
   .input {
-    @apply flex h-9 w-full rounded-md border border-border bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary disabled:cursor-not-allowed disabled:opacity-50;
+    @apply flex h-10 w-full rounded-xl border border-border bg-surface px-4 py-2 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 hover:border-primary/50;
   }
 }

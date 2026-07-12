@@ -5,11 +5,11 @@ import { Card, CardContent } from '../components/common/Card';
 
 export const Bookings = () => {
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-10">
+    <div className="space-y-8 max-w-[1600px] mx-auto pb-12">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-text">Resource Booking</h1>
-          <p className="text-muted mt-1">Book shared resources and manage schedules.</p>
+          <h1 className="text-[28px] font-bold text-text tracking-tight">Resource Booking</h1>
+          <p className="text-muted mt-1 text-sm">Book shared resources and manage schedules.</p>
         </div>
         <Button className="gap-2">
           <CalendarClock size={18} />
@@ -52,3 +52,4 @@ export const Bookings = () => {
     </div>
   );
 };
+

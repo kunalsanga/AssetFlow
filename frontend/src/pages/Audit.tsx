@@ -5,11 +5,11 @@ import { Card, CardContent } from '../components/common/Card';
 
 export const Audit = () => {
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-10">
+    <div className="space-y-8 max-w-[1600px] mx-auto pb-12">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-text">Asset Audit</h1>
-          <p className="text-muted mt-1">Run structured asset verification cycles.</p>
+          <h1 className="text-[28px] font-bold text-text tracking-tight">Asset Audit</h1>
+          <p className="text-muted mt-1 text-sm">Run structured asset verification cycles.</p>
         </div>
         <Button className="gap-2" variant="outline">
           <Play size={18} />
@@ -65,3 +65,4 @@ export const Audit = () => {
     </div>
   );
 };
+
