@@ -15,7 +15,7 @@ import { useAuth } from '../../context/AuthContext';
 
 const navItems = [
   { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-  { name: 'Organization Setup', path: '/organization', icon: Building2, roles: ['super_admin', 'admin'] },
+  { name: 'Organization Setup', path: '/organization', icon: Building2, roles: ['super_admin', 'admin', 'ADMIN', 'SUPER_ADMIN'] },
   { name: 'Assets', path: '/assets', icon: Laptop },
   { name: 'Allocation & Transfer', path: '/allocation', icon: ArrowRightLeft },
   { name: 'Resource Booking', path: '/bookings', icon: CalendarClock },
@@ -28,6 +28,8 @@ const navItems = [
 export const Sidebar: React.FC = () => {
   const { user } = useAuth();
   
+  const userRoleLower = user?.role?.toLowerCase();
+
   return (
     <aside className="w-64 bg-[#2e1065] border-r border-[#4c1d95] h-screen flex-col hidden md:flex sticky top-0 z-10 text-white shadow-xl">
       <div className="h-20 px-6 border-b border-[#4c1d95] flex items-center shrink-0">
@@ -41,7 +43,8 @@ export const Sidebar: React.FC = () => {
       
       <nav className="flex-1 overflow-y-auto p-4 space-y-2 mt-4">
         {navItems.map((item) => {
-          if (item.roles && user && !item.roles.includes(user.role)) {
+          // Normalize role comparison to lowercase for case-insensitive matching
+          if (item.roles && user && !item.roles.map(r => r.toLowerCase()).includes(userRoleLower ?? '')) {
             return null;
           }
           return (

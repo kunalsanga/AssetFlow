@@ -21,7 +21,7 @@ def create_allocation(
     *,
     db: Session = Depends(deps.get_db),
     allocation_in: schemas.AllocationCreate,
-    current_user: models.User = Depends(deps.require_role([models.UserRole.super_admin, models.UserRole.ADMIN, models.UserRole.ASSET_MANAGER]))
+    current_user: models.User = Depends(deps.require_role([models.UserRole.ADMIN, models.UserRole.ASSET_MANAGER]))
 ) -> Any:
     """Create a new allocation (Allocate asset). Check double allocation conflict."""
     # Check if asset exists
@@ -124,7 +124,7 @@ def approve_transfer_request(
     *,
     db: Session = Depends(deps.get_db),
     id: int,
-    current_user: models.User = Depends(deps.require_role([models.UserRole.super_admin, models.UserRole.ADMIN, models.UserRole.ASSET_MANAGER]))
+    current_user: models.User = Depends(deps.require_role([models.UserRole.ADMIN, models.UserRole.ASSET_MANAGER]))
 ) -> Any:
     """Approve a transfer request. Re-allocates the asset to the new holder. Admin/Manager only."""
     transfer_req = crud.transfer_request.get(db, id=id)
@@ -155,7 +155,7 @@ def reject_transfer_request(
     *,
     db: Session = Depends(deps.get_db),
     id: int,
-    current_user: models.User = Depends(deps.require_role([models.UserRole.super_admin, models.UserRole.ADMIN, models.UserRole.ASSET_MANAGER]))
+    current_user: models.User = Depends(deps.require_role([models.UserRole.ADMIN, models.UserRole.ASSET_MANAGER]))
 ) -> Any:
     """Reject a transfer request. Admin/Manager only."""
     transfer_req = crud.transfer_request.get(db, id=id)

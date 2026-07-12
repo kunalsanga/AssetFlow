@@ -40,8 +40,8 @@ export const TableHead: React.FC<{ children: ReactNode; className?: string }> = 
   </th>
 );
 
-export const TableCell: React.FC<{ children: ReactNode; className?: string }> = ({ children, className }) => (
-  <td className={cn("px-6 py-4 font-medium", className)}>
+export const TableCell: React.FC<{ children: ReactNode; className?: string; colSpan?: number }> = ({ children, className, colSpan }) => (
+  <td colSpan={colSpan} className={cn("px-6 py-4 font-medium", className)}>
     {children}
   </td>
 );

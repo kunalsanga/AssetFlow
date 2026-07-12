@@ -4,7 +4,7 @@ import { Button } from '../../components/common/Button';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../components/ui/Table';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { Modal } from '../../components/ui/Modal';
-import { getEmployees, Employee, getDepartments, Department } from '../../services/organization.service';
+import { getEmployees, updateEmployeeRole, Employee, getDepartments, Department } from '../../services/organization.service';
 
 export const EmployeeDirectoryTab = () => {
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -14,6 +14,8 @@ export const EmployeeDirectoryTab = () => {
   
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
   const [selectedEmp, setSelectedEmp] = useState<Employee | null>(null);
+  const [selectedRole, setSelectedRole] = useState<string>('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -44,11 +46,27 @@ export const EmployeeDirectoryTab = () => {
 
   const openRoleModal = (emp: Employee) => {
     setSelectedEmp(emp);
+    setSelectedRole(emp.role);
     setIsRoleModalOpen(true);
   };
 
+  const handleRoleUpdate = async () => {
+    if (!selectedEmp) return;
+    try {
+      setIsSubmitting(true);
+      await updateEmployeeRole(selectedEmp.id, selectedRole);
+      setIsRoleModalOpen(false);
+      await loadData();
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Failed to update role');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const getRoleBadge = (role: string) => {
-    switch(role) {
+    const r = role?.toLowerCase();
+    switch(r) {
       case 'admin': return <StatusBadge status="Admin" type="error" />;
       case 'asset_manager': return <StatusBadge status="Asset Manager" type="pending" />;
       case 'department_head': return <StatusBadge status="Dept Head" type="info" />;
@@ -153,12 +171,13 @@ export const EmployeeDirectoryTab = () => {
               <label className="text-sm font-medium text-text">Assign Role</label>
               <select 
                 className="w-full bg-background border border-border rounded-md px-3 py-2 text-sm text-text focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50"
-                defaultValue={selectedEmp.role}
+                value={selectedRole}
+                onChange={(e) => setSelectedRole(e.target.value)}
               >
-                <option value="employee">Employee (Default)</option>
-                <option value="department_head">Department Head</option>
-                <option value="asset_manager">Asset Manager</option>
-                <option value="admin">Administrator</option>
+                <option value="EMPLOYEE">Employee (Default)</option>
+                <option value="DEPARTMENT_HEAD">Department Head</option>
+                <option value="ASSET_MANAGER">Asset Manager</option>
+                <option value="ADMIN">Administrator</option>
               </select>
             </div>
             
@@ -169,8 +188,10 @@ export const EmployeeDirectoryTab = () => {
             </div>
             
             <div className="flex justify-end gap-3 pt-4 border-t border-border mt-6">
-              <Button variant="outline" onClick={() => setIsRoleModalOpen(false)}>Cancel</Button>
-              <Button onClick={() => setIsRoleModalOpen(false)}>Update Role</Button>
+              <Button variant="outline" onClick={() => setIsRoleModalOpen(false)} disabled={isSubmitting}>Cancel</Button>
+              <Button onClick={handleRoleUpdate} disabled={isSubmitting}>
+                {isSubmitting ? 'Updating...' : 'Update Role'}
+              </Button>
             </div>
           </div>
         )}

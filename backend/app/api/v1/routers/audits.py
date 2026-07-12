@@ -101,7 +101,7 @@ def close_audit_cycle(
     *,
     db: Session = Depends(deps.get_db),
     id: int,
-    current_user: models.User = Depends(deps.require_role([models.UserRole.super_admin, models.UserRole.ADMIN, models.UserRole.ASSET_MANAGER]))
+    current_user: models.User = Depends(deps.require_role([models.UserRole.ADMIN, models.UserRole.ASSET_MANAGER]))
 ) -> Any:
     """Close and lock an audit cycle. Updates asset statuses and logs activity. Admin/Manager only."""
     try:

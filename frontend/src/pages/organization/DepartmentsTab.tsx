@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, AlertTriangle } from 'lucide-react';
+import { Trash2, AlertTriangle } from 'lucide-react';
 import { Button } from '../../components/common/Button';
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '../../components/ui/Table';
 import { StatusBadge } from '../../components/ui/StatusBadge';
 import { Modal } from '../../components/ui/Modal';
 import { Input } from '../../components/common/Input';
-import { getDepartments, createDepartment, updateDepartment, updateDepartmentStatus, Department } from '../../services/organization.service';
-export const DepartmentsTab = () => {
+import { getDepartments, createDepartment, updateDepartmentStatus, Department } from '../../services/organization.service';
+
+interface Props {
+  onAdd?: boolean;
+  onAddClose?: () => void;
+}
+export const DepartmentsTab = ({ onAdd, onAddClose }: Props) => {
   const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -14,9 +19,20 @@ export const DepartmentsTab = () => {
   const [formData, setFormData] = useState<Partial<Department>>({ status: 'Active' });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  useEffect(() => { loadDepartments(); }, []);
+
+  // Trigger modal from parent +Add button
   useEffect(() => {
-    loadDepartments();
-  }, []);
+    if (onAdd) {
+      setFormData({ status: 'Active' });
+      setIsModalOpen(true);
+    }
+  }, [onAdd]);
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    onAddClose?.();
+  };
 
   const loadDepartments = async () => {
     try {
@@ -83,31 +99,30 @@ export const DepartmentsTab = () => {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h2 className="text-lg font-semibold text-text">Departments</h2>
-        <Button onClick={() => { setFormData({ status: 'Active' }); setIsModalOpen(true); }} className="gap-2">
-          <Plus size={16} />
-          Add Department
-        </Button>
-      </div>
-
+    <div className="space-y-0">
+      {/* Table — columns match wireframe: Department, Head, Parent Dept, Status */}
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Department Name</TableHead>
-            <TableHead>Department Code</TableHead>
-            <TableHead>Parent Department</TableHead>
+            <TableHead>Department</TableHead>
+            <TableHead>Head</TableHead>
+            <TableHead>Parent Dept</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead className="w-[100px] text-right">Actions</TableHead>
+            <TableHead className="w-[80px] text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {departments.map((dept) => (
+          {departments.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={5} className="text-center text-muted py-10 text-sm">
+                No departments yet. Click <strong>+ Add</strong> to create one.
+              </TableCell>
+            </TableRow>
+          ) : departments.map((dept) => (
             <TableRow key={dept.id}>
               <TableCell className="font-medium text-text">{dept.name}</TableCell>
-              <TableCell>{dept.code}</TableCell>
-              <TableCell>{getDepartmentName(dept.parent_id)}</TableCell>
+              <TableCell className="text-muted text-sm">{dept.head_id ? `User #${dept.head_id}` : '—'}</TableCell>
+              <TableCell className="text-muted text-sm">{getDepartmentName(dept.parent_id)}</TableCell>
               <TableCell>
                 <StatusBadge 
                   status={dept.status === 'Active' ? 'Active' : 'Inactive'} 
@@ -130,11 +145,7 @@ export const DepartmentsTab = () => {
         </TableBody>
       </Table>
 
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title="Create New Department"
-      >
+              <Modal isOpen={isModalOpen} onClose={closeModal} title="Add Department">
         <div className="space-y-4">
           <Input 
             label="Department Name" 

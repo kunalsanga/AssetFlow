@@ -69,7 +69,7 @@ def assign_technician(
     db: Session = Depends(deps.get_db),
     id: int,
     request_in: schemas.MaintenanceRequestUpdate,
-    current_user: models.User = Depends(deps.require_role([models.UserRole.super_admin, models.UserRole.ADMIN, models.UserRole.ASSET_MANAGER]))
+    current_user: models.User = Depends(deps.require_role([models.UserRole.ADMIN, models.UserRole.ASSET_MANAGER]))
 ) -> Any:
     """Assign technician schedule and technician name (changes request status to ASSIGNED)."""
     maint_req = crud.maintenance_request.get(db, id=id)
@@ -106,7 +106,7 @@ def start_maintenance(
     *,
     db: Session = Depends(deps.get_db),
     id: int,
-    current_user: models.User = Depends(deps.require_role([models.UserRole.super_admin, models.UserRole.ADMIN, models.UserRole.ASSET_MANAGER, models.UserRole.technician]))
+    current_user: models.User = Depends(deps.require_role([models.UserRole.ADMIN, models.UserRole.ASSET_MANAGER, models.UserRole.EMPLOYEE]))
 ) -> Any:
     """Start work on an assigned maintenance request (transitions request status to IN_PROGRESS)."""
     maint_req = crud.maintenance_request.get(db, id=id)
@@ -130,7 +130,7 @@ def resolve_maintenance(
     db: Session = Depends(deps.get_db),
     id: int,
     request_in: schemas.MaintenanceRequestUpdate,
-    current_user: models.User = Depends(deps.require_role([models.UserRole.super_admin, models.UserRole.ADMIN, models.UserRole.ASSET_MANAGER, models.UserRole.technician]))
+    current_user: models.User = Depends(deps.require_role([models.UserRole.ADMIN, models.UserRole.ASSET_MANAGER, models.UserRole.EMPLOYEE]))
 ) -> Any:
     """Resolve a maintenance request. Restores asset status (default is AVAILABLE)."""
     maint_req = crud.maintenance_request.get(db, id=id)
@@ -158,7 +158,7 @@ def reject_maintenance_request(
     *,
     db: Session = Depends(deps.get_db),
     id: int,
-    current_user: models.User = Depends(deps.require_role([models.UserRole.super_admin, models.UserRole.ADMIN, models.UserRole.ASSET_MANAGER]))
+    current_user: models.User = Depends(deps.require_role([models.UserRole.ADMIN, models.UserRole.ASSET_MANAGER]))
 ) -> Any:
     """Reject a maintenance request."""
     maint_req = crud.maintenance_request.get(db, id=id)
