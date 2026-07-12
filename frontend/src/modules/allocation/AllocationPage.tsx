@@ -463,20 +463,44 @@ export const AllocationPage: React.FC = () => {
                   <label className="text-sm font-medium text-text">Select Asset</label>
                   <select
                     value={allocateAssetId}
-                    onChange={(e) => setAllocateAssetId(e.target.value)}
+                    onChange={(e) => {
+                      setAllocateAssetId(e.target.value);
+                      setFormError(null);
+                    }}
                     className="flex h-10 w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-text focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
                     required
                   >
-                    <option value="">-- Choose Available Asset --</option>
+                    <option value="">-- Choose Asset --</option>
                     {assets
-                      .filter(a => a.status === 'available')
+                      .filter(a => a.status === 'available' || a.status === 'allocated')
                       .map(a => (
                         <option key={a.id} value={a.id}>
-                          {a.name} ({a.serial_number})
+                          {a.name} ({a.serial_number}) - {a.status}
                         </option>
                       ))}
                   </select>
                 </div>
+
+                {(() => {
+                  const selectedAsset = assets.find(a => a.id.toString() === allocateAssetId);
+                  const activeAlloc = activeAllocations.find(a => a.asset_id.toString() === allocateAssetId);
+
+                  if (selectedAsset?.status === 'allocated' && activeAlloc) {
+                    return (
+                      <div className="p-4 bg-error/10 border border-error/25 rounded-md mt-2 flex flex-col gap-2">
+                        <div className="text-error font-medium flex items-center gap-2 text-sm">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+                          Double-Allocation Blocked
+                        </div>
+                        <p className="text-sm text-error/90">
+                          This asset is currently allocated to <strong>{getRecipientName(activeAlloc.allocated_to_type, activeAlloc.allocated_to_id)}</strong>. 
+                          Direct allocation is blocked — submit a transfer request below.
+                        </p>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
 
                 {/* Target Type */}
                 <div className="flex flex-col gap-1.5">
@@ -548,9 +572,32 @@ export const AllocationPage: React.FC = () => {
                   <Button type="button" variant="outline" onClick={() => setIsAllocateOpen(false)}>
                     Cancel
                   </Button>
-                  <Button type="submit">
-                    Confirm Allocation
-                  </Button>
+                  
+                  {(() => {
+                    const selectedAsset = assets.find(a => a.id.toString() === allocateAssetId);
+                    const activeAlloc = activeAllocations.find(a => a.asset_id.toString() === allocateAssetId);
+                    
+                    if (selectedAsset?.status === 'allocated' && activeAlloc) {
+                      return (
+                        <Button 
+                          type="button" 
+                          onClick={() => {
+                            setIsAllocateOpen(false);
+                            setSelectedAllocation(activeAlloc);
+                            setIsTransferOpen(true);
+                          }}
+                        >
+                          Submit Transfer Request
+                        </Button>
+                      );
+                    }
+                    
+                    return (
+                      <Button type="submit">
+                        Confirm Allocation
+                      </Button>
+                    );
+                  })()}
                 </div>
               </form>
             </CardContent>

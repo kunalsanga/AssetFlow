@@ -49,9 +49,12 @@ export const EmployeeDirectoryTab = () => {
 
   const getRoleBadge = (role: string) => {
     switch(role) {
+      case 'super_admin': return <StatusBadge status="Super Admin" type="error" />;
       case 'admin': return <StatusBadge status="Admin" type="error" />;
       case 'asset_manager': return <StatusBadge status="Asset Manager" type="pending" />;
       case 'department_head': return <StatusBadge status="Dept Head" type="info" />;
+      case 'auditor': return <StatusBadge status="Auditor" type="inactive" />;
+      case 'technician': return <StatusBadge status="Technician" type="pending" />;
       default: return <StatusBadge status="Employee" type="success" />;
     }
   };
@@ -156,9 +159,12 @@ export const EmployeeDirectoryTab = () => {
                 defaultValue={selectedEmp.role}
               >
                 <option value="employee">Employee (Default)</option>
+                <option value="technician">Technician</option>
+                <option value="auditor">Auditor</option>
                 <option value="department_head">Department Head</option>
                 <option value="asset_manager">Asset Manager</option>
                 <option value="admin">Administrator</option>
+                <option value="super_admin">Super Administrator</option>
               </select>
             </div>
             

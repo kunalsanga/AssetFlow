@@ -3,12 +3,14 @@ import { Search, Filter, Plus, AlertTriangle } from 'lucide-react';
 import { Button } from '../components/common/Button';
 import { Card, CardContent } from '../components/common/Card';
 import { getAssets, Asset } from '../services/asset.service';
+import { AssetDetailsModal } from '../components/common/AssetDetailsModal';
 
 export const Assets = () => {
   const [assets, setAssets] = useState<Asset[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
 
   useEffect(() => {
     loadAssets();
@@ -130,7 +132,13 @@ export const Assets = () => {
                           {asset.description || '-'}
                         </td>
                         <td className="px-6 py-4 text-right">
-                          <Button variant="outline" size="sm">View Details</Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => setSelectedAsset(asset as any)}
+                          >
+                            View Details
+                          </Button>
                         </td>
                       </tr>
                     ))
@@ -141,6 +149,13 @@ export const Assets = () => {
           </CardContent>
         )}
       </Card>
+      
+      {selectedAsset && (
+        <AssetDetailsModal 
+          asset={selectedAsset as any} 
+          onClose={() => setSelectedAsset(null)} 
+        />
+      )}
     </div>
   );
 };
