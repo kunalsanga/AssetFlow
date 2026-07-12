@@ -4,10 +4,13 @@ from sqlalchemy.orm import relationship
 from app.db.base_class import Base
 
 class UserRole(str, enum.Enum):
+    super_admin = "super_admin"
     admin = "admin"
     asset_manager = "asset_manager"
     department_head = "department_head"
     employee = "employee"
+    auditor = "auditor"
+    technician = "technician"
 
 class User(Base):
     __tablename__ = "users"

@@ -18,7 +18,7 @@ from app.services.category_service import category_service
 router = APIRouter()
 
 # Admin-only permissions for CRUD operations
-admin_permission = deps.require_role_async([UserRole.admin])
+admin_permission = deps.require_role_async([UserRole.super_admin, UserRole.admin])
 
 @router.post(
     "",

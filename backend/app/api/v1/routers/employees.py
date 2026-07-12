@@ -19,7 +19,7 @@ from app.services.employee_service import employee_service
 router = APIRouter()
 
 # Admin-only permissions for promotions and listing
-admin_permission = deps.require_role_async([UserRole.admin])
+admin_permission = deps.require_role_async([UserRole.super_admin, UserRole.admin])
 
 @router.get(
     "/dropdown",

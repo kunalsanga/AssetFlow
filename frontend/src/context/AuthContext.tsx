@@ -5,7 +5,7 @@ import * as authService from '../services/auth.service';
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password?: string) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -13,24 +13,24 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
-  const mockAdminUser: User = {
-    id: 1,
-    email: 'admin@assetflow.com',
-    full_name: 'Admin User',
-    role: 'admin',
-    is_active: true
-  };
-
-  const [user, setUser] = useState<User | null>(mockAdminUser);
-  const [loading] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Authentication temporarily bypassed for development
-    // const initAuth = async () => { ... }
-    // initAuth();
+    const initAuth = async () => {
+      try {
+        const currentUser = await authService.getCurrentUser();
+        setUser(currentUser);
+      } catch (error) {
+        console.error("Failed to fetch user session", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    initAuth();
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string = 'password') => {
     await authService.login(email, password);
     const currentUser = await authService.getCurrentUser();
     setUser(currentUser);
