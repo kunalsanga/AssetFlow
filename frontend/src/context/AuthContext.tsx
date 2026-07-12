@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { User, AuthResponse } from '../types';
+import { User } from '../types';
 import * as authService from '../services/auth.service';
 
 interface AuthContextType {
@@ -22,7 +22,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const [user, setUser] = useState<User | null>(mockAdminUser);
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
 
   useEffect(() => {
     // Authentication temporarily bypassed for development
