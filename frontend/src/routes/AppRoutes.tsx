@@ -8,9 +8,9 @@ import { Dashboard } from '../pages/Dashboard';
 import { Organization } from '../pages/Organization';
 import { Assets } from '../pages/Assets';
 import { AllocationPage as Allocation } from '../modules/allocation/AllocationPage';
-import { Bookings } from '../pages/Bookings';
-import { Maintenance } from '../pages/Maintenance';
-import { Audit } from '../pages/Audit';
+import { BookingPage as Bookings } from '../modules/booking/BookingPage';
+import { MaintenancePage as Maintenance } from '../modules/maintenance/MaintenancePage';
+import { AuditPage as Audit } from '../modules/audit/AuditPage';
 import { Reports } from '../pages/Reports';
 import { Notifications } from '../pages/Notifications';
 
