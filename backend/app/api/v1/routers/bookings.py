@@ -13,9 +13,9 @@ def read_bookings(
 ) -> Any:
     """Retrieve bookings. Filter according to user role (Employees only see their own)."""
     if current_user.role == models.UserRole.EMPLOYEE:
-        bookings = db.query(models.Booking).filter(models.Booking.user_id == current_user.id).all()
+        bookings = db.query(models.ResourceBooking).filter(models.ResourceBooking.user_id == current_user.id).all()
     else:
-        bookings = db.query(models.Booking).all()
+        bookings = db.query(models.ResourceBooking).all()
     return bookings
 
 @router.post("/", response_model=schemas.BookingResponse, status_code=status.HTTP_201_CREATED)
@@ -23,7 +23,7 @@ def create_booking(
     *,
     db: Session = Depends(deps.get_db),
     booking_in: schemas.BookingCreate,
-    current_user: models.User = Depends(deps.get_current_active_user)
+    current_user: models.User = Depends(deps.require_permission("booking:create"))
 ) -> Any:
     """Create a new booking. Validates overlap first."""
     # Check if asset exists and is available/shared

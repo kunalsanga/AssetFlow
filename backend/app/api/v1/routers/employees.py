@@ -19,7 +19,8 @@ from app.services.employee_service import employee_service
 router = APIRouter()
 
 # Admin-only permissions for promotions and listing
-admin_permission = deps.require_role_async([UserRole.super_admin, UserRole.ADMIN])
+from app.security.permissions import require_role
+admin_permission = require_role(UserRole.ADMIN)
 
 @router.get(
     "/dropdown",
@@ -140,6 +141,27 @@ async def update_role(
     current_user: User = Depends(admin_permission),
 ):
     user = await employee_service.update_role(db, id, obj_in, current_user)
+    return EmployeeDetailResponse(
+        success=True,
+        message="Employee role modified successfully.",
+        data=EmployeeResponse.model_validate(user),
+    )
+
+@router.post(
+    "/promote",
+    response_model=EmployeeDetailResponse,
+    summary="Promote Employee Role",
+    description="Promotes employee role. Requires administrator privileges and prevents self-promotion.",
+)
+async def promote_employee(
+    *,
+    employeeId: int = Query(..., alias="employeeId", description="Employee ID to promote"),
+    role: UserRole = Query(..., description="Role to promote to"),
+    db: AsyncSession = Depends(deps.get_async_db),
+    current_user: User = Depends(admin_permission),
+):
+    obj_in = EmployeeRoleUpdate(role=role)
+    user = await employee_service.update_role(db, employeeId, obj_in, current_user)
     return EmployeeDetailResponse(
         success=True,
         message="Employee role modified successfully.",

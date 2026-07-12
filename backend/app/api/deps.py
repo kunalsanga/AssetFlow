@@ -87,3 +87,9 @@ def require_role_async(roles: list[UserRole]):
         return current_user
     return role_checker
 
+from app.security.permissions import (
+    require_role as require_role_new,
+    require_any_role,
+    require_permission
+)
+

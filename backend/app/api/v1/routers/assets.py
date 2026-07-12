@@ -22,7 +22,7 @@ def create_asset(
     *,
     db: Session = Depends(deps.get_db),
     asset_in: schemas.AssetCreate,
-    current_user: models.User = Depends(deps.require_role([models.UserRole.super_admin, models.UserRole.ADMIN, models.UserRole.ASSET_MANAGER]))
+    current_user: models.User = Depends(deps.require_permission("asset:register"))
 ) -> Any:
     """Create a new asset. Admin/Asset Manager only."""
     db_asset = crud.asset.get_by_serial_number(db, serial_number=asset_in.serial_number)

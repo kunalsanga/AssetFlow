@@ -45,7 +45,7 @@ def approve_maintenance_request(
     *,
     db: Session = Depends(deps.get_db),
     id: int,
-    current_user: models.User = Depends(deps.require_role([models.UserRole.super_admin, models.UserRole.ADMIN, models.UserRole.ASSET_MANAGER]))
+    current_user: models.User = Depends(deps.require_permission("maintenance:approve"))
 ) -> Any:
     """Approve a maintenance request. Changes asset status to UNDER_MAINTENANCE."""
     maint_req = crud.maintenance_request.get(db, id=id)

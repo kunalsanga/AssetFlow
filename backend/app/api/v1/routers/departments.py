@@ -17,8 +17,8 @@ from app.services.department_service import department_service
 
 router = APIRouter()
 
-# Admin-only permissions for CRUD operations
-admin_permission = deps.require_role_async([UserRole.super_admin, UserRole.ADMIN])
+from app.security.permissions import require_role
+admin_permission = require_role(UserRole.ADMIN)
 
 @router.post(
     "",

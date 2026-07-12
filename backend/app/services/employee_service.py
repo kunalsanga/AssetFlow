@@ -73,6 +73,15 @@ class EmployeeService:
             
         user = await self.get_employee(db, id)
         old_role = user.role
+        
+        # - Validate promotion to same role
+        if old_role == obj_in.role:
+            raise UserRoleModificationException("Promotion to same role is not allowed.")
+            
+        # - Validate invalid role targets (Can only promote to Department Head or Asset Manager, or demote to Employee)
+        if obj_in.role not in [UserRole.DEPARTMENT_HEAD, UserRole.ASSET_MANAGER, UserRole.EMPLOYEE]:
+            raise UserRoleModificationException("Invalid role promotion target.")
+            
         user.role = obj_in.role
         
         # - Department Head must belong to assigned department.

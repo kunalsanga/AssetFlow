@@ -190,6 +190,19 @@ async def assetflow_exception_handler(request, exc: AssetFlowException):
         }
     )
 
+from fastapi import HTTPException
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request, exc: HTTPException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        headers=exc.headers,
+        content={
+            "success": False,
+            "message": exc.detail
+        }
+    )
+
 
 @app.get("/")
 def root():

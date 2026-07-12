@@ -7,7 +7,7 @@ from app.models.user import User, UserRole
 from app.models.department import Department
 from app.models.asset import Asset, AssetStatus
 from app.models.allocation import Allocation, AllocationStatus, AllocationToType
-from app.models.booking import ResourceBooking
+from app.models.booking import BookableResource, ResourceBooking
 from app.models.maintenance_request import MaintenanceRequest
 from app.models.transfer import TransferRequest, TransferRequestStatus
 from app.models.activity_log import ActivityLog
@@ -159,17 +159,23 @@ async def seed_data(db: AsyncSession):
     await db.refresh(alloc2)
 
     # Create Bookings
+    # Create BookableResource first
+    resource3 = BookableResource(asset_id=asset3.id, is_bookable=True)
+    db.add(resource3)
+    await db.commit()
+    await db.refresh(resource3)
+
     # Booking 1: Asset 3 booked by Employee Eng, status ONGOING
-    booking1 = Booking(
-        asset_id=asset3.id,
+    booking1 = ResourceBooking(
+        resource_id=resource3.id,
         user_id=emp_eng.id,
         start_time=datetime.utcnow() - timedelta(hours=1),
         end_time=datetime.utcnow() + timedelta(hours=1),
         status="ONGOING",
     )
     # Booking 2: Asset 3 booked by Employee Sales, status UPCOMING
-    booking2 = Booking(
-        asset_id=asset3.id,
+    booking2 = ResourceBooking(
+        resource_id=resource3.id,
         user_id=emp_sales.id,
         start_time=datetime.utcnow() + timedelta(hours=3),
         end_time=datetime.utcnow() + timedelta(hours=5),

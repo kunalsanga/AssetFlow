@@ -25,7 +25,7 @@ def create_audit_cycle(
     *,
     db: Session = Depends(deps.get_db),
     cycle_in: schemas.AuditCycleCreate,
-    current_user: models.User = Depends(deps.require_role([models.UserRole.super_admin, models.UserRole.ADMIN, models.UserRole.ASSET_MANAGER]))
+    current_user: models.User = Depends(deps.require_permission("create:audit_cycles"))
 ) -> Any:
     """Create a new audit cycle. Automatically populates item records for all assets."""
     return crud.audit.create_cycle(db, obj_in=cycle_in)

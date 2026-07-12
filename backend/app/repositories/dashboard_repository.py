@@ -7,7 +7,7 @@ from sqlalchemy import func, or_, and_
 from app.models.user import User, UserRole
 from app.models.asset import Asset, AssetStatus
 from app.models.allocation import Allocation, AllocationStatus, AllocationToType
-from app.models.booking import ResourceBooking
+from app.models.booking import BookableResource, ResourceBooking
 from app.models.maintenance_request import MaintenanceRequest
 from app.models.transfer import TransferRequest, TransferRequestStatus
 from app.models.activity_log import ActivityLog
@@ -70,7 +70,7 @@ class DashboardRepository:
         # 4. Active Bookings (Booking status = ONGOING)
         bookings_stmt = select(func.count(ResourceBooking.id)).where(ResourceBooking.status == "ONGOING")
         if role == UserRole.ASSET_MANAGER:
-            bookings_stmt = bookings_stmt.join(Asset).where(Asset.managed_by_id == user_id)
+            bookings_stmt = bookings_stmt.join(BookableResource).join(Asset).where(Asset.managed_by_id == user_id)
         elif role == UserRole.DEPARTMENT_HEAD:
             bookings_stmt = bookings_stmt.join(User, ResourceBooking.user_id == User.id).where(
                 User.department_id == dept_id
