@@ -1,45 +1,18 @@
-import { mockDashboardData } from '../mock/dashboard';
+import api from './api';
+import { mockDashboardData } from '../mock/dashboard.mock';
+import { DashboardData } from '../types/dashboard';
 
-export interface OverdueAlert {
-  active: boolean;
-  count: number;
-  message: string;
-}
+// Re-export types for backward compatibility with existing components
+export type { DashboardData, Activity, DashboardStats, StatItem, OverdueAlert } from '../types/dashboard';
 
-export interface StatItem {
-  value: string;
-  trend: string;
-  trendDirection: 'up' | 'down' | 'neutral';
-}
-
-export interface DashboardStats {
-  assetsAvailable: StatItem;
-  assetsAllocated: StatItem;
-  maintenanceToday: StatItem;
-  activeBookings: StatItem;
-  pendingTransfers: StatItem;
-  upcomingReturns: StatItem;
-}
-
-export interface Activity {
-  id: number;
-  type: 'allocation' | 'booking' | 'maintenance' | 'transfer' | 'audit';
-  assetCode?: string;
-  resourceName?: string;
-  user?: string;
-  duration?: string;
-  status?: string;
-  time: string;
-}
-
-export interface DashboardData {
-  overdueAlert: OverdueAlert;
-  stats: DashboardStats;
-  recentActivities: Activity[];
-}
+const USE_MOCK_DATA = import.meta.env.VITE_USE_MOCK_DATA === 'true';
 
 export const getDashboardStats = async (): Promise<DashboardData> => {
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return Promise.resolve(mockDashboardData as DashboardData);
+  if (USE_MOCK_DATA) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return mockDashboardData;
+  }
+  
+  const response = await api.get('/dashboard');
+  return response.data;
 };

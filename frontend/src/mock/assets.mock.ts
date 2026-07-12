@@ -1,4 +1,6 @@
-export const mockAssets = [
+import { Asset } from '../types/asset';
+
+export const mockAssets: Asset[] = [
   {
     id: 1,
     name: "MacBook Pro 16\"",

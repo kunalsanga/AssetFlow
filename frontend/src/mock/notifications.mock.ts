@@ -1,4 +1,6 @@
-export const mockNotifications = [
+import { Notification } from '../types/notification';
+
+export const mockNotifications: Notification[] = [
   { id: 1, type: 'alert', title: 'Asset Overdue', message: 'Laptop AF-MBP-001 is 2 days overdue for return.', time: '10 min ago', isRead: false },
   { id: 2, type: 'approval', title: 'Transfer Request', message: 'John Smith requested transfer of Monitor AF-MON-024.', time: '1 hour ago', isRead: false },
   { id: 3, type: 'alert', title: 'Maintenance Required', message: 'Printer AF-PRN-002 reported toner empty.', time: '2 hours ago', isRead: false },

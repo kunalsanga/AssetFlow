@@ -1,4 +1,6 @@
-export const mockDashboardData = {
+import { DashboardData } from '../types/dashboard';
+
+export const mockDashboardData: DashboardData = {
   overdueAlert: {
     active: true,
     count: 3,

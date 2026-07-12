@@ -1,16 +1,17 @@
-import { mockAssets } from '../mock/assets';
+import api from './api';
+import { mockAssets } from '../mock/assets.mock';
+import { Asset } from '../types/asset';
 
-export interface Asset {
-  id: number;
-  name: string;
-  serial_number: string;
-  model: string;
-  status: string;
-  description?: string;
-}
+export type { Asset } from '../types/asset';
+
+const USE_MOCK_DATA = import.meta.env.VITE_USE_MOCK_DATA === 'true';
 
 export const getAssets = async (): Promise<Asset[]> => {
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return Promise.resolve(mockAssets as Asset[]);
+  if (USE_MOCK_DATA) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return mockAssets;
+  }
+  
+  const response = await api.get('/assets');
+  return response.data;
 };
