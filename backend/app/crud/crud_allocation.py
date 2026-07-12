@@ -4,9 +4,9 @@ from sqlalchemy.orm import Session
 from app.crud.base import CRUDBase
 from app.models.allocation import Allocation, AllocationStatus
 from app.models.asset import Asset, AssetStatus
-from app.schemas.allocation import AllocationCreate
+from app.schemas.allocation import AllocationCreate, AllocationUpdate
 
-class CRUDAllocation(CRUDBase[Allocation, AllocationCreate, Any := None]):
+class CRUDAllocation(CRUDBase[Allocation, AllocationCreate, AllocationUpdate]):
     def get_active_by_asset(self, db: Session, *, asset_id: int) -> Optional[Allocation]:
         return db.query(Allocation).filter(
             Allocation.asset_id == asset_id,

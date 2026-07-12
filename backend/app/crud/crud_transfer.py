@@ -5,9 +5,9 @@ from app.crud.base import CRUDBase
 from app.models.transfer import TransferRequest, TransferRequestStatus
 from app.models.allocation import Allocation, AllocationStatus, AllocationToType
 from app.models.asset import Asset, AssetStatus
-from app.schemas.transfer import TransferRequestCreate
+from app.schemas.transfer import TransferRequestCreate, TransferRequestUpdate
 
-class CRUDTransferRequest(CRUDBase[TransferRequest, TransferRequestCreate, Any := None]):
+class CRUDTransferRequest(CRUDBase[TransferRequest, TransferRequestCreate, TransferRequestUpdate]):
     def get_pending(self, db: Session) -> List[TransferRequest]:
         return db.query(TransferRequest).filter(TransferRequest.status == TransferRequestStatus.pending).all()
 
