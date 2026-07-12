@@ -6,10 +6,10 @@ from sqlalchemy import func, or_, and_
 
 from app.models.user import User, UserRole
 from app.models.asset import Asset
-from app.models.asset_allocation import AssetAllocation
+from app.models.allocation import Allocation, AllocationStatus, AllocationToType
 from app.models.booking import Booking
 from app.models.maintenance_request import MaintenanceRequest
-from app.models.transfer_request import TransferRequest
+from app.models.transfer import TransferRequest, TransferRequestStatus
 from app.models.activity_log import ActivityLog
 
 class DashboardRepository:
@@ -23,13 +23,13 @@ class DashboardRepository:
         role = user.role
         user_id = user.id
         dept_id = user.department_id
-        today_dt = datetime.combine(today, datetime.min.time())
-        today_plus_7 = today + timedelta(days=7)
-
-        # Base queries definitions with filters
         
+        today_start = datetime.combine(today, datetime.min.time())
+        today_end = datetime.combine(today, datetime.max.time())
+        today_plus_7_end = datetime.combine(today + timedelta(days=7), datetime.max.time())
+
         # 1. Assets Available
-        available_stmt = select(func.count(Asset.id)).where(Asset.status == "AVAILABLE")
+        available_stmt = select(func.count(Asset.id)).where(Asset.status == "available")
         if role == UserRole.asset_manager:
             available_stmt = available_stmt.where(Asset.managed_by_id == user_id)
         elif role == UserRole.department_head:
@@ -40,16 +40,19 @@ class DashboardRepository:
             )
 
         # 2. Assets Allocated
-        allocated_stmt = select(func.count(Asset.id)).where(Asset.status == "ALLOCATED")
+        allocated_stmt = select(func.count(Asset.id)).where(Asset.status == "allocated")
         if role == UserRole.asset_manager:
             allocated_stmt = allocated_stmt.where(Asset.managed_by_id == user_id)
         elif role == UserRole.department_head:
             allocated_stmt = allocated_stmt.where(Asset.department_id == dept_id)
         elif role == UserRole.employee:
             allocated_stmt = (
-                allocated_stmt.join(AssetAllocation, AssetAllocation.asset_id == Asset.id)
-                .where(AssetAllocation.user_id == user_id)
-                .where(AssetAllocation.returned_at.is_(None))
+                allocated_stmt.join(Allocation, Allocation.asset_id == Asset.id)
+                .where(
+                    Allocation.allocated_to_type == AllocationToType.user,
+                    Allocation.allocated_to_id == user_id,
+                    Allocation.returned_at.is_(None)
+                )
             )
 
         # 3. Maintenance Today
@@ -74,48 +77,54 @@ class DashboardRepository:
         elif role == UserRole.employee:
             bookings_stmt = bookings_stmt.where(Booking.user_id == user_id)
 
-        # 5. Pending Transfers (Transfer Request status = PENDING)
+        # 5. Pending Transfers (Transfer Request status = pending)
         transfers_stmt = select(func.count(TransferRequest.id)).where(
-            TransferRequest.status == "PENDING"
+            TransferRequest.status == TransferRequestStatus.pending
         )
         if role == UserRole.asset_manager:
-            transfers_stmt = transfers_stmt.join(Asset).where(Asset.managed_by_id == user_id)
+            transfers_stmt = transfers_stmt.join(Allocation, TransferRequest.allocation_id == Allocation.id).join(Asset, Allocation.asset_id == Asset.id).where(Asset.managed_by_id == user_id)
         elif role == UserRole.department_head:
-            transfers_stmt = transfers_stmt.join(Asset).where(Asset.department_id == dept_id)
+            transfers_stmt = transfers_stmt.join(Allocation, TransferRequest.allocation_id == Allocation.id).join(Asset, Allocation.asset_id == Asset.id).where(Asset.department_id == dept_id)
         elif role == UserRole.employee:
             transfers_stmt = transfers_stmt.where(
                 or_(
-                    TransferRequest.from_user_id == user_id,
-                    TransferRequest.to_user_id == user_id,
+                    TransferRequest.requested_by_id == user_id,
+                    and_(TransferRequest.target_type == "user", TransferRequest.target_id == user_id)
                 )
             )
 
         # 6. Upcoming Returns
         upcoming_stmt = (
-            select(func.count(AssetAllocation.id))
-            .where(AssetAllocation.returned_at.is_(None))
-            .where(AssetAllocation.expected_return_date >= today)
-            .where(AssetAllocation.expected_return_date <= today_plus_7)
+            select(func.count(Allocation.id))
+            .where(Allocation.returned_at.is_(None))
+            .where(Allocation.due_date >= today_start)
+            .where(Allocation.due_date <= today_plus_7_end)
         )
         if role == UserRole.asset_manager:
-            upcoming_stmt = upcoming_stmt.join(Asset).where(Asset.managed_by_id == user_id)
+            upcoming_stmt = upcoming_stmt.join(Asset, Allocation.asset_id == Asset.id).where(Asset.managed_by_id == user_id)
         elif role == UserRole.department_head:
-            upcoming_stmt = upcoming_stmt.join(Asset).where(Asset.department_id == dept_id)
+            upcoming_stmt = upcoming_stmt.join(Asset, Allocation.asset_id == Asset.id).where(Asset.department_id == dept_id)
         elif role == UserRole.employee:
-            upcoming_stmt = upcoming_stmt.where(AssetAllocation.user_id == user_id)
+            upcoming_stmt = upcoming_stmt.where(
+                Allocation.allocated_to_type == AllocationToType.user,
+                Allocation.allocated_to_id == user_id
+            )
 
         # 7. Overdue Returns
         overdue_stmt = (
-            select(func.count(AssetAllocation.id))
-            .where(AssetAllocation.returned_at.is_(None))
-            .where(AssetAllocation.expected_return_date < today)
+            select(func.count(Allocation.id))
+            .where(Allocation.returned_at.is_(None))
+            .where(Allocation.due_date < today_start)
         )
         if role == UserRole.asset_manager:
-            overdue_stmt = overdue_stmt.join(Asset).where(Asset.managed_by_id == user_id)
+            overdue_stmt = overdue_stmt.join(Asset, Allocation.asset_id == Asset.id).where(Asset.managed_by_id == user_id)
         elif role == UserRole.department_head:
-            overdue_stmt = overdue_stmt.join(Asset).where(Asset.department_id == dept_id)
+            overdue_stmt = overdue_stmt.join(Asset, Allocation.asset_id == Asset.id).where(Asset.department_id == dept_id)
         elif role == UserRole.employee:
-            overdue_stmt = overdue_stmt.where(AssetAllocation.user_id == user_id)
+            overdue_stmt = overdue_stmt.where(
+                Allocation.allocated_to_type == AllocationToType.user,
+                Allocation.allocated_to_id == user_id
+            )
 
         # Run counts
         res_available = await db.scalar(available_stmt) or 0
@@ -171,20 +180,25 @@ class DashboardRepository:
         role = user.role
         user_id = user.id
         dept_id = user.department_id
-        today_plus_7 = today + timedelta(days=7)
+        
+        today_start = datetime.combine(today, datetime.min.time())
+        today_plus_7_end = datetime.combine(today + timedelta(days=7), datetime.max.time())
 
         # 1. Overdue Returns
         overdue_stmt = (
-            select(func.count(AssetAllocation.id))
-            .where(AssetAllocation.returned_at.is_(None))
-            .where(AssetAllocation.expected_return_date < today)
+            select(func.count(Allocation.id))
+            .where(Allocation.returned_at.is_(None))
+            .where(Allocation.due_date < today_start)
         )
         if role == UserRole.asset_manager:
-            overdue_stmt = overdue_stmt.join(Asset).where(Asset.managed_by_id == user_id)
+            overdue_stmt = overdue_stmt.join(Asset, Allocation.asset_id == Asset.id).where(Asset.managed_by_id == user_id)
         elif role == UserRole.department_head:
-            overdue_stmt = overdue_stmt.join(Asset).where(Asset.department_id == dept_id)
+            overdue_stmt = overdue_stmt.join(Asset, Allocation.asset_id == Asset.id).where(Asset.department_id == dept_id)
         elif role == UserRole.employee:
-            overdue_stmt = overdue_stmt.where(AssetAllocation.user_id == user_id)
+            overdue_stmt = overdue_stmt.where(
+                Allocation.allocated_to_type == AllocationToType.user,
+                Allocation.allocated_to_id == user_id
+            )
 
         # 2. Pending Maintenance
         pending_maint_stmt = select(func.count(MaintenanceRequest.id)).where(
@@ -205,28 +219,26 @@ class DashboardRepository:
 
         # 3. Pending Transfers
         pending_trans_stmt = select(func.count(TransferRequest.id)).where(
-            TransferRequest.status == "PENDING"
+            TransferRequest.status == TransferRequestStatus.pending
         )
         if role == UserRole.asset_manager:
-            pending_trans_stmt = pending_trans_stmt.join(Asset).where(
+            pending_trans_stmt = pending_trans_stmt.join(Allocation, TransferRequest.allocation_id == Allocation.id).join(Asset, Allocation.asset_id == Asset.id).where(
                 Asset.managed_by_id == user_id
             )
         elif role == UserRole.department_head:
-            pending_trans_stmt = pending_trans_stmt.join(Asset).where(
+            pending_trans_stmt = pending_trans_stmt.join(Allocation, TransferRequest.allocation_id == Allocation.id).join(Asset, Allocation.asset_id == Asset.id).where(
                 Asset.department_id == dept_id
             )
         elif role == UserRole.employee:
             pending_trans_stmt = pending_trans_stmt.where(
                 or_(
-                    TransferRequest.from_user_id == user_id,
-                    TransferRequest.to_user_id == user_id,
+                    TransferRequest.requested_by_id == user_id,
+                    and_(TransferRequest.target_type == "user", TransferRequest.target_id == user_id)
                 )
             )
 
         # 4. Audit Cycle Activity check (last 30 days)
         audit_stmt = select(func.count(ActivityLog.id))
-        # Exclude filter for role if we want general audit cycle status
-        # Since audit cycles are admin/manager concerns, we check if any exists
         thirty_days_ago = datetime.combine(today - timedelta(days=30), datetime.min.time())
         audit_stmt = audit_stmt.where(
             ActivityLog.type == "AUDIT_CYCLE", ActivityLog.created_at >= thirty_days_ago
@@ -236,7 +248,7 @@ class DashboardRepository:
         upcoming_maint_stmt = select(func.count(MaintenanceRequest.id)).where(
             and_(
                 MaintenanceRequest.scheduled_date >= today,
-                MaintenanceRequest.scheduled_date <= today_plus_7,
+                MaintenanceRequest.scheduled_date <= today + timedelta(days=7),
                 MaintenanceRequest.status.in_(
                     ["PENDING", "APPROVED", "TECHNICIAN_ASSIGNED", "IN_PROGRESS"]
                 ),
