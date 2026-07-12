@@ -2,6 +2,55 @@
 
 AssetFlow is a robust, full-stack application built for the Odoo Hackathon. This repository contains the foundational architecture.
 
+# 📸 Application Screenshots
+
+Below are screenshots demonstrating the key features and user interface of the AssetFlow Enterprise Asset & Resource Management System.
+
+### 📊 Dashboard
+Centralized command center providing real-time insights into asset allocation, maintenance requests, and active resource bookings.
+
+![Dashboard](assets/screenshots/dashboard.png)
+
+### 📦 Asset Directory
+A powerful searchable and filterable grid displaying all organizational assets along with their current status and assignment.
+
+![Asset Directory](assets/screenshots/asset-directory.png)
+
+### 🔄 Asset Allocation
+Dedicated workflow for checking out assets to employees or departments, complete with tracking for due dates and conditions.
+
+![Asset Allocation](assets/screenshots/asset-allocation.png)
+
+### 📅 Resource Booking
+Interactive scheduling system allowing staff to reserve shared resources like conference rooms or specialized equipment.
+
+![Resource Booking](assets/screenshots/resource-booking.png)
+
+### 🛠️ Maintenance Management
+End-to-end ticketing system for reporting issues, assigning technicians, and tracking repair resolutions.
+
+![Maintenance Management](assets/screenshots/maintenance-management.png)
+
+### ✅ Asset Audit
+Compliance-focused module for conducting periodic physical inventory checks and verifying asset locations.
+
+![Asset Audit](assets/screenshots/asset-audit.png)
+
+### 📈 Reports & Analytics
+Advanced reporting engine generating comprehensive visual summaries of asset utilization, depreciation, and lifecycle metrics.
+
+![Reports & Analytics](assets/screenshots/reports-analytics.png)
+
+### 🔔 Notifications
+Real-time alerts keeping users informed about pending approvals, maintenance updates, and upcoming reservation times.
+
+![Notifications](assets/screenshots/notifications.png)
+
+### 📜 Activity Logs
+Immutable audit trail recording every critical action within the system for maximum accountability and security tracking.
+
+![Activity Logs](assets/screenshots/activity-logs.png)
+
 ## Tech Stack
 - **Frontend:** React, Vite, Tailwind CSS, TypeScript
 - **Backend:** FastAPI, Python, SQLAlchemy
@@ -54,52 +103,3 @@ After startup, the services will be available at:
 
 
 ---
-
-# 📸 Application Screenshots
-
-Below are screenshots demonstrating the key features and user interface of the AssetFlow Enterprise Asset & Resource Management System.
-
-### 📊 Dashboard
-Centralized command center providing real-time insights into asset allocation, maintenance requests, and active resource bookings.
-
-![Dashboard](assets/screenshots/dashboard.png)
-
-### 📦 Asset Directory
-A powerful searchable and filterable grid displaying all organizational assets along with their current status and assignment.
-
-![Asset Directory](assets/screenshots/asset-directory.png)
-
-### 🔄 Asset Allocation
-Dedicated workflow for checking out assets to employees or departments, complete with tracking for due dates and conditions.
-
-![Asset Allocation](assets/screenshots/asset-allocation.png)
-
-### 📅 Resource Booking
-Interactive scheduling system allowing staff to reserve shared resources like conference rooms or specialized equipment.
-
-![Resource Booking](assets/screenshots/resource-booking.png)
-
-### 🛠️ Maintenance Management
-End-to-end ticketing system for reporting issues, assigning technicians, and tracking repair resolutions.
-
-![Maintenance Management](assets/screenshots/maintenance-management.png)
-
-### ✅ Asset Audit
-Compliance-focused module for conducting periodic physical inventory checks and verifying asset locations.
-
-![Asset Audit](assets/screenshots/asset-audit.png)
-
-### 📈 Reports & Analytics
-Advanced reporting engine generating comprehensive visual summaries of asset utilization, depreciation, and lifecycle metrics.
-
-![Reports & Analytics](assets/screenshots/reports-analytics.png)
-
-### 🔔 Notifications
-Real-time alerts keeping users informed about pending approvals, maintenance updates, and upcoming reservation times.
-
-![Notifications](assets/screenshots/notifications.png)
-
-### 📜 Activity Logs
-Immutable audit trail recording every critical action within the system for maximum accountability and security tracking.
-
-![Activity Logs](assets/screenshots/activity-logs.png)
