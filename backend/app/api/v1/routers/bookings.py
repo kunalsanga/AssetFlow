@@ -12,7 +12,7 @@ def read_bookings(
     current_user: models.User = Depends(deps.get_current_active_user)
 ) -> Any:
     """Retrieve bookings. Filter according to user role (Employees only see their own)."""
-    if current_user.role == models.UserRole.employee:
+    if current_user.role == models.UserRole.EMPLOYEE:
         bookings = db.query(models.Booking).filter(models.Booking.user_id == current_user.id).all()
     else:
         bookings = db.query(models.Booking).all()
@@ -61,7 +61,7 @@ def cancel_booking(
         )
     
     # Access control: employees can only cancel their own bookings
-    if current_user.role == models.UserRole.employee and booking_obj.user_id != current_user.id:
+    if current_user.role == models.UserRole.EMPLOYEE and booking_obj.user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You do not have permission to cancel this booking."
@@ -86,7 +86,7 @@ def reschedule_booking(
         )
 
     # Access control: employees can only reschedule their own bookings
-    if current_user.role == models.UserRole.employee and booking_obj.user_id != current_user.id:
+    if current_user.role == models.UserRole.EMPLOYEE and booking_obj.user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You do not have permission to reschedule this booking."

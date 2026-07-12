@@ -7,7 +7,7 @@ from sqlalchemy import func, or_, and_
 from app.models.user import User, UserRole
 from app.models.asset import Asset, AssetStatus
 from app.models.allocation import Allocation, AllocationStatus, AllocationToType
-from app.models.booking import Booking
+from app.models.booking import ResourceBooking
 from app.models.maintenance_request import MaintenanceRequest
 from app.models.transfer import TransferRequest, TransferRequestStatus
 from app.models.activity_log import ActivityLog
@@ -31,22 +31,22 @@ class DashboardRepository:
         
         # 1. Assets Available
         available_stmt = select(func.count(Asset.id)).where(Asset.status == AssetStatus.available)
-        if role == UserRole.asset_manager:
+        if role == UserRole.ASSET_MANAGER:
             available_stmt = available_stmt.where(Asset.managed_by_id == user_id)
-        elif role == UserRole.department_head:
+        elif role == UserRole.DEPARTMENT_HEAD:
             available_stmt = available_stmt.where(Asset.department_id == dept_id)
-        elif role == UserRole.employee:
+        elif role == UserRole.EMPLOYEE:
             available_stmt = available_stmt.where(
                 or_(Asset.department_id == dept_id, Asset.is_shared == True)
             )
 
         # 2. Assets Allocated
         allocated_stmt = select(func.count(Asset.id)).where(Asset.status == AssetStatus.allocated)
-        if role == UserRole.asset_manager:
+        if role == UserRole.ASSET_MANAGER:
             allocated_stmt = allocated_stmt.where(Asset.managed_by_id == user_id)
-        elif role == UserRole.department_head:
+        elif role == UserRole.DEPARTMENT_HEAD:
             allocated_stmt = allocated_stmt.where(Asset.department_id == dept_id)
-        elif role == UserRole.employee:
+        elif role == UserRole.EMPLOYEE:
             allocated_stmt = (
                 allocated_stmt.join(Allocation, Allocation.asset_id == Asset.id)
                 .where(
@@ -60,33 +60,33 @@ class DashboardRepository:
         maintenance_stmt = select(func.count(MaintenanceRequest.id)).where(
             MaintenanceRequest.scheduled_date == today
         )
-        if role == UserRole.asset_manager:
+        if role == UserRole.ASSET_MANAGER:
             maintenance_stmt = maintenance_stmt.join(Asset).where(Asset.managed_by_id == user_id)
-        elif role == UserRole.department_head:
+        elif role == UserRole.DEPARTMENT_HEAD:
             maintenance_stmt = maintenance_stmt.join(Asset).where(Asset.department_id == dept_id)
-        elif role == UserRole.employee:
+        elif role == UserRole.EMPLOYEE:
             maintenance_stmt = maintenance_stmt.where(MaintenanceRequest.requester_id == user_id)
 
         # 4. Active Bookings (Booking status = ONGOING)
-        bookings_stmt = select(func.count(Booking.id)).where(Booking.status == "ONGOING")
-        if role == UserRole.asset_manager:
+        bookings_stmt = select(func.count(ResourceBooking.id)).where(ResourceBooking.status == "ONGOING")
+        if role == UserRole.ASSET_MANAGER:
             bookings_stmt = bookings_stmt.join(Asset).where(Asset.managed_by_id == user_id)
-        elif role == UserRole.department_head:
-            bookings_stmt = bookings_stmt.join(User, Booking.user_id == User.id).where(
+        elif role == UserRole.DEPARTMENT_HEAD:
+            bookings_stmt = bookings_stmt.join(User, ResourceBooking.user_id == User.id).where(
                 User.department_id == dept_id
             )
-        elif role == UserRole.employee:
-            bookings_stmt = bookings_stmt.where(Booking.user_id == user_id)
+        elif role == UserRole.EMPLOYEE:
+            bookings_stmt = bookings_stmt.where(ResourceBooking.user_id == user_id)
 
         # 5. Pending Transfers (Transfer Request status = pending)
         transfers_stmt = select(func.count(TransferRequest.id)).where(
             TransferRequest.status == TransferRequestStatus.pending
         )
-        if role == UserRole.asset_manager:
+        if role == UserRole.ASSET_MANAGER:
             transfers_stmt = transfers_stmt.join(Allocation, TransferRequest.allocation_id == Allocation.id).join(Asset, Allocation.asset_id == Asset.id).where(Asset.managed_by_id == user_id)
-        elif role == UserRole.department_head:
+        elif role == UserRole.DEPARTMENT_HEAD:
             transfers_stmt = transfers_stmt.join(Allocation, TransferRequest.allocation_id == Allocation.id).join(Asset, Allocation.asset_id == Asset.id).where(Asset.department_id == dept_id)
-        elif role == UserRole.employee:
+        elif role == UserRole.EMPLOYEE:
             transfers_stmt = transfers_stmt.join(Allocation, TransferRequest.allocation_id == Allocation.id).where(
                 or_(
                     TransferRequest.requested_by_id == user_id,
@@ -101,11 +101,11 @@ class DashboardRepository:
             .where(Allocation.due_date >= today_start)
             .where(Allocation.due_date <= today_plus_7_end)
         )
-        if role == UserRole.asset_manager:
+        if role == UserRole.ASSET_MANAGER:
             upcoming_stmt = upcoming_stmt.join(Asset, Allocation.asset_id == Asset.id).where(Asset.managed_by_id == user_id)
-        elif role == UserRole.department_head:
+        elif role == UserRole.DEPARTMENT_HEAD:
             upcoming_stmt = upcoming_stmt.join(Asset, Allocation.asset_id == Asset.id).where(Asset.department_id == dept_id)
-        elif role == UserRole.employee:
+        elif role == UserRole.EMPLOYEE:
             upcoming_stmt = upcoming_stmt.where(
                 Allocation.allocated_to_type == AllocationToType.user,
                 Allocation.allocated_to_id == user_id
@@ -117,11 +117,11 @@ class DashboardRepository:
             .where(Allocation.returned_at.is_(None))
             .where(Allocation.due_date < today_start)
         )
-        if role == UserRole.asset_manager:
+        if role == UserRole.ASSET_MANAGER:
             overdue_stmt = overdue_stmt.join(Asset, Allocation.asset_id == Asset.id).where(Asset.managed_by_id == user_id)
-        elif role == UserRole.department_head:
+        elif role == UserRole.DEPARTMENT_HEAD:
             overdue_stmt = overdue_stmt.join(Asset, Allocation.asset_id == Asset.id).where(Asset.department_id == dept_id)
-        elif role == UserRole.employee:
+        elif role == UserRole.EMPLOYEE:
             overdue_stmt = overdue_stmt.where(
                 Allocation.allocated_to_type == AllocationToType.user,
                 Allocation.allocated_to_id == user_id
@@ -158,15 +158,15 @@ class DashboardRepository:
 
         stmt = select(ActivityLog).order_by(ActivityLog.created_at.desc()).limit(limit)
 
-        if role == UserRole.asset_manager:
+        if role == UserRole.ASSET_MANAGER:
             stmt = stmt.join(Asset, ActivityLog.asset_id == Asset.id, isouter=True).where(
                 or_(Asset.managed_by_id == user_id, ActivityLog.user_id == user_id)
             )
-        elif role == UserRole.department_head:
+        elif role == UserRole.DEPARTMENT_HEAD:
             stmt = stmt.join(User, ActivityLog.user_id == User.id, isouter=True).where(
                 or_(User.department_id == dept_id, ActivityLog.user_id == user_id)
             )
-        elif role == UserRole.employee:
+        elif role == UserRole.EMPLOYEE:
             stmt = stmt.where(ActivityLog.user_id == user_id)
 
         result = await db.execute(stmt)
@@ -191,11 +191,11 @@ class DashboardRepository:
             .where(Allocation.returned_at.is_(None))
             .where(Allocation.due_date < today_start)
         )
-        if role == UserRole.asset_manager:
+        if role == UserRole.ASSET_MANAGER:
             overdue_stmt = overdue_stmt.join(Asset, Allocation.asset_id == Asset.id).where(Asset.managed_by_id == user_id)
-        elif role == UserRole.department_head:
+        elif role == UserRole.DEPARTMENT_HEAD:
             overdue_stmt = overdue_stmt.join(Asset, Allocation.asset_id == Asset.id).where(Asset.department_id == dept_id)
-        elif role == UserRole.employee:
+        elif role == UserRole.EMPLOYEE:
             overdue_stmt = overdue_stmt.where(
                 Allocation.allocated_to_type == AllocationToType.user,
                 Allocation.allocated_to_id == user_id
@@ -205,15 +205,15 @@ class DashboardRepository:
         pending_maint_stmt = select(func.count(MaintenanceRequest.id)).where(
             MaintenanceRequest.status == "PENDING"
         )
-        if role == UserRole.asset_manager:
+        if role == UserRole.ASSET_MANAGER:
             pending_maint_stmt = pending_maint_stmt.join(Asset).where(
                 Asset.managed_by_id == user_id
             )
-        elif role == UserRole.department_head:
+        elif role == UserRole.DEPARTMENT_HEAD:
             pending_maint_stmt = pending_maint_stmt.join(Asset).where(
                 Asset.department_id == dept_id
             )
-        elif role == UserRole.employee:
+        elif role == UserRole.EMPLOYEE:
             pending_maint_stmt = pending_maint_stmt.where(
                 MaintenanceRequest.requester_id == user_id
             )
@@ -222,15 +222,15 @@ class DashboardRepository:
         pending_trans_stmt = select(func.count(TransferRequest.id)).where(
             TransferRequest.status == TransferRequestStatus.pending
         )
-        if role == UserRole.asset_manager:
+        if role == UserRole.ASSET_MANAGER:
             pending_trans_stmt = pending_trans_stmt.join(Allocation, TransferRequest.allocation_id == Allocation.id).join(Asset, Allocation.asset_id == Asset.id).where(
                 Asset.managed_by_id == user_id
             )
-        elif role == UserRole.department_head:
+        elif role == UserRole.DEPARTMENT_HEAD:
             pending_trans_stmt = pending_trans_stmt.join(Allocation, TransferRequest.allocation_id == Allocation.id).join(Asset, Allocation.asset_id == Asset.id).where(
                 Asset.department_id == dept_id
             )
-        elif role == UserRole.employee:
+        elif role == UserRole.EMPLOYEE:
             pending_trans_stmt = pending_trans_stmt.join(Allocation, TransferRequest.allocation_id == Allocation.id).where(
                 or_(
                     TransferRequest.requested_by_id == user_id,
@@ -257,15 +257,15 @@ class DashboardRepository:
                 ),
             )
         )
-        if role == UserRole.asset_manager:
+        if role == UserRole.ASSET_MANAGER:
             upcoming_maint_stmt = upcoming_maint_stmt.join(Asset).where(
                 Asset.managed_by_id == user_id
             )
-        elif role == UserRole.department_head:
+        elif role == UserRole.DEPARTMENT_HEAD:
             upcoming_maint_stmt = upcoming_maint_stmt.join(Asset).where(
                 Asset.department_id == dept_id
             )
-        elif role == UserRole.employee:
+        elif role == UserRole.EMPLOYEE:
             upcoming_maint_stmt = upcoming_maint_stmt.where(
                 MaintenanceRequest.requester_id == user_id
             )

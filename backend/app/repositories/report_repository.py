@@ -6,7 +6,7 @@ from datetime import datetime, timedelta, date
 from app.models.asset import Asset, AssetStatus
 from app.models.department import Department
 from app.models.allocation import Allocation, AllocationStatus
-from app.models.booking import Booking
+from app.models.booking import ResourceBooking
 from app.models.maintenance_request import MaintenanceRequest
 
 class ReportRepository:

@@ -7,7 +7,6 @@ class UserBase(BaseModel):
     email: Optional[EmailStr] = None
     is_active: Optional[bool] = True
     full_name: Optional[str] = None
-    role: Optional[UserRole] = None
 
 # Properties to receive via API on creation
 class UserCreate(UserBase):
@@ -21,6 +20,7 @@ class UserUpdate(UserBase):
 # Properties shared by models stored in DB
 class UserInDBBase(UserBase):
     id: Optional[int] = None
+    role: Optional[UserRole] = None
 
     model_config = {"from_attributes": True}
 

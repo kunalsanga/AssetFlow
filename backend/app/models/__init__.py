@@ -1,7 +1,7 @@
 from .user import User, UserRole
 from .asset import Asset, AssetStatus, AssetCondition
 from .allocation import Allocation, AllocationStatus, AllocationToType
-from .booking import Booking
+from .booking import BookableResource, ResourceBooking, BookingHistory, BookingActivityLog, BookingNotification
 from .maintenance_request import MaintenanceRequest
 from .transfer import TransferRequest, TransferRequestStatus
 from .department import Department

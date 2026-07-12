@@ -22,13 +22,13 @@ def seed_db():
         # Seed users if empty
         if db.query(User).count() == 0:
             users_to_seed = [
-                User(email="admin@assetflow.com", hashed_password=get_password_hash("admin123"), full_name="Admin User", role=UserRole.admin),
-                User(email="manager@assetflow.com", hashed_password=get_password_hash("manager123"), full_name="Asset Manager", role=UserRole.asset_manager),
-                User(email="employee@assetflow.com", hashed_password=get_password_hash("employee123"), full_name="John Doe", role=UserRole.employee),
-                User(email="employee2@assetflow.com", hashed_password=get_password_hash("employee123"), full_name="Jane Smith", role=UserRole.employee),
-                User(email="arao@assetflow.com", hashed_password=get_password_hash("employee123"), full_name="A. Rao", role=UserRole.employee),
-                User(email="siqbal@assetflow.com", hashed_password=get_password_hash("employee123"), full_name="S. Iqbal", role=UserRole.employee),
-                User(email="rvarma@assetflow.com", hashed_password=get_password_hash("employee123"), full_name="R. Varma", role=UserRole.employee),
+                User(email="admin@assetflow.com", hashed_password=get_password_hash("admin123"), full_name="Admin User", role=UserRole.ADMIN),
+                User(email="manager@assetflow.com", hashed_password=get_password_hash("manager123"), full_name="Asset Manager", role=UserRole.ASSET_MANAGER),
+                User(email="employee@assetflow.com", hashed_password=get_password_hash("employee123"), full_name="John Doe", role=UserRole.EMPLOYEE),
+                User(email="employee2@assetflow.com", hashed_password=get_password_hash("employee123"), full_name="Jane Smith", role=UserRole.EMPLOYEE),
+                User(email="arao@assetflow.com", hashed_password=get_password_hash("employee123"), full_name="A. Rao", role=UserRole.EMPLOYEE),
+                User(email="siqbal@assetflow.com", hashed_password=get_password_hash("employee123"), full_name="S. Iqbal", role=UserRole.EMPLOYEE),
+                User(email="rvarma@assetflow.com", hashed_password=get_password_hash("employee123"), full_name="R. Varma", role=UserRole.EMPLOYEE),
             ]
             for user in users_to_seed:
                 db.add(user)
@@ -94,7 +94,7 @@ def seed_db():
 
         # Seed Maintenance Requests if empty
         if db.query(MaintenanceRequest).count() == 0:
-            requester = db.query(User).filter(User.role == UserRole.employee).first()
+            requester = db.query(User).filter(User.role == UserRole.EMPLOYEE).first()
             if requester:
                 # Get seeded assets
                 bulb = db.query(Asset).filter(Asset.asset_tag == "AF-0062").first()

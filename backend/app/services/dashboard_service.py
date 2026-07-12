@@ -93,7 +93,7 @@ class DashboardService:
 
             # 4. Audit Due Alert (ADMIN and ASSET_MANAGER only, when no audits in last 30 days)
             recent_audits_cnt = alert_counts.get("recentAudits", 0)
-            if user.role in [UserRole.admin, UserRole.asset_manager] and recent_audits_cnt == 0:
+            if user.role in [UserRole.ADMIN, UserRole.ASSET_MANAGER] and recent_audits_cnt == 0:
                 alerts.append(
                     DashboardAlert(
                         id=alert_id,
@@ -120,7 +120,7 @@ class DashboardService:
             # Map Quick Actions based on role
             # ADMIN & ASSET_MANAGER can register assets. Others cannot.
             # All roles can book resources and raise maintenance requests.
-            can_register = user.role in [UserRole.admin, UserRole.asset_manager]
+            can_register = user.role in [UserRole.ADMIN, UserRole.ASSET_MANAGER]
             quick_actions = QuickActions(
                 registerAsset=can_register,
                 bookResource=True,

@@ -7,7 +7,7 @@ from app.models.user import User, UserRole
 from app.models.department import Department
 from app.models.asset import Asset, AssetStatus
 from app.models.allocation import Allocation, AllocationStatus, AllocationToType
-from app.models.booking import Booking
+from app.models.booking import ResourceBooking
 from app.models.maintenance_request import MaintenanceRequest
 from app.models.transfer import TransferRequest, TransferRequestStatus
 from app.models.activity_log import ActivityLog
@@ -31,14 +31,14 @@ async def seed_data(db: AsyncSession):
         email="admin@example.com",
         hashed_password="hash",
         full_name="Admin User",
-        role=UserRole.admin,
+        role=UserRole.ADMIN,
         is_active=True,
     )
     manager_eng = User(
         email="manager_eng@example.com",
         hashed_password="hash",
         full_name="Manager Eng",
-        role=UserRole.asset_manager,
+        role=UserRole.ASSET_MANAGER,
         department_id=dept_eng.id,
         is_active=True,
     )
@@ -46,7 +46,7 @@ async def seed_data(db: AsyncSession):
         email="manager_sales@example.com",
         hashed_password="hash",
         full_name="Manager Sales",
-        role=UserRole.asset_manager,
+        role=UserRole.ASSET_MANAGER,
         department_id=dept_sales.id,
         is_active=True,
     )
@@ -54,7 +54,7 @@ async def seed_data(db: AsyncSession):
         email="head_eng@example.com",
         hashed_password="hash",
         full_name="Head Eng",
-        role=UserRole.department_head,
+        role=UserRole.DEPARTMENT_HEAD,
         department_id=dept_eng.id,
         is_active=True,
     )
@@ -62,7 +62,7 @@ async def seed_data(db: AsyncSession):
         email="emp_eng@example.com",
         hashed_password="hash",
         full_name="Employee Eng",
-        role=UserRole.employee,
+        role=UserRole.EMPLOYEE,
         department_id=dept_eng.id,
         is_active=True,
     )
@@ -70,7 +70,7 @@ async def seed_data(db: AsyncSession):
         email="emp_sales@example.com",
         hashed_password="hash",
         full_name="Employee Sales",
-        role=UserRole.employee,
+        role=UserRole.EMPLOYEE,
         department_id=dept_sales.id,
         is_active=True,
     )
@@ -400,6 +400,6 @@ async def test_service_error_handling(db: AsyncSession):
     
     # We should get a DashboardLoadError exception
     with pytest.raises(DashboardLoadError) as exc_info:
-        await dashboard_service.get_dashboard_data(mock_db, User(id=1, email="test@test.com", role=UserRole.employee))
+        await dashboard_service.get_dashboard_data(mock_db, User(id=1, email="test@test.com", role=UserRole.EMPLOYEE))
     
     assert "Dashboard could not be loaded" in str(exc_info.value)

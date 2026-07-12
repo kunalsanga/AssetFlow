@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from app.db.session import SessionLocal
 from app.models.user import User, UserRole
 from app.models.asset import Asset, AssetStatus
-from app.models.booking import Booking
+from app.models.booking import ResourceBooking
 from app import crud, schemas
 
 def run_verification():
@@ -14,12 +14,12 @@ def run_verification():
         # 1. Setup clean assets and users for test
         test_user = db.query(User).filter(User.email == "booking_user@example.com").first()
         if not test_user:
-            test_user = User(email="booking_user@example.com", hashed_password="pw", full_name="Booking Employee", role=UserRole.employee)
+            test_user = User(email="booking_user@example.com", hashed_password="pw", full_name="Booking Employee", role=UserRole.EMPLOYEE)
             db.add(test_user)
             
-        test_manager = db.query(User).filter(User.role == UserRole.admin).first()
+        test_manager = db.query(User).filter(User.role == UserRole.ADMIN).first()
         if not test_manager:
-            test_manager = User(email="booking_mgr@example.com", hashed_password="pw", full_name="Booking Manager", role=UserRole.admin)
+            test_manager = User(email="booking_mgr@example.com", hashed_password="pw", full_name="Booking Manager", role=UserRole.ADMIN)
             db.add(test_manager)
             
         db.commit()

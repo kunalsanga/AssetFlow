@@ -15,17 +15,17 @@ def run_verification():
         # 1. Setup clean assets and users for test
         test_user1 = db.query(User).filter(User.email == "test_user1@example.com").first()
         if not test_user1:
-            test_user1 = User(email="test_user1@example.com", hashed_password="pw", full_name="User One", role=UserRole.employee)
+            test_user1 = User(email="test_user1@example.com", hashed_password="pw", full_name="User One", role=UserRole.EMPLOYEE)
             db.add(test_user1)
         
         test_user2 = db.query(User).filter(User.email == "test_user2@example.com").first()
         if not test_user2:
-            test_user2 = User(email="test_user2@example.com", hashed_password="pw", full_name="User Two", role=UserRole.employee)
+            test_user2 = User(email="test_user2@example.com", hashed_password="pw", full_name="User Two", role=UserRole.EMPLOYEE)
             db.add(test_user2)
             
-        test_manager = db.query(User).filter(User.role == UserRole.admin).first()
+        test_manager = db.query(User).filter(User.role == UserRole.ADMIN).first()
         if not test_manager:
-            test_manager = User(email="test_mgr@example.com", hashed_password="pw", full_name="Test Manager", role=UserRole.admin)
+            test_manager = User(email="test_mgr@example.com", hashed_password="pw", full_name="Test Manager", role=UserRole.ADMIN)
             db.add(test_manager)
             
         db.commit()

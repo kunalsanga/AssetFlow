@@ -2,10 +2,10 @@ from typing import List, Optional
 from datetime import datetime
 from sqlalchemy.orm import Session
 from app.crud.base import CRUDBase
-from app.models.booking import Booking
+from app.models.booking import ResourceBooking
 from app.schemas.booking import BookingCreate, BookingUpdate
 
-class CRUDBooking(CRUDBase[Booking, BookingCreate, BookingUpdate]):
+class CRUDBooking(CRUDBase[ResourceBooking, BookingCreate, BookingUpdate]):
     def check_overlap(
         self, db: Session, *, asset_id: int, start_time: datetime, end_time: datetime, exclude_booking_id: Optional[int] = None
     ) -> bool:
@@ -14,23 +14,23 @@ class CRUDBooking(CRUDBase[Booking, BookingCreate, BookingUpdate]):
         Overlapping condition: start_time < existing.end_time AND end_time > existing.start_time
         Adjacent bookings are allowed (where B.start == A.end).
         """
-        query = db.query(Booking).filter(
-            Booking.asset_id == asset_id,
-            Booking.status != "CANCELLED",
-            Booking.start_time < end_time,
-            Booking.end_time > start_time
+        query = db.query(ResourceBooking).filter(
+            ResourceBooking.asset_id == asset_id,
+            ResourceBooking.status != "CANCELLED",
+            ResourceBooking.start_time < end_time,
+            ResourceBooking.end_time > start_time
         )
         if exclude_booking_id:
-            query = query.filter(Booking.id != exclude_booking_id)
+            query = query.filter(ResourceBooking.id != exclude_booking_id)
         
         return query.first() is not None
 
-    def create_booking(self, db: Session, *, obj_in: BookingCreate, user_id: int) -> Optional[Booking]:
+    def create_booking(self, db: Session, *, obj_in: BookingCreate, user_id: int) -> Optional[ResourceBooking]:
         # Check overlap
         if self.check_overlap(db, asset_id=obj_in.asset_id, start_time=obj_in.start_time, end_time=obj_in.end_time):
             return None
         
-        db_obj = Booking(
+        db_obj = ResourceBooking(
             asset_id=obj_in.asset_id,
             user_id=user_id,
             start_time=obj_in.start_time,
@@ -42,7 +42,7 @@ class CRUDBooking(CRUDBase[Booking, BookingCreate, BookingUpdate]):
         db.refresh(db_obj)
         return db_obj
 
-    def cancel_booking(self, db: Session, *, db_obj: Booking) -> Booking:
+    def cancel_booking(self, db: Session, *, db_obj: ResourceBooking) -> ResourceBooking:
         db_obj.status = "CANCELLED"
         db.add(db_obj)
         db.commit()
@@ -50,8 +50,8 @@ class CRUDBooking(CRUDBase[Booking, BookingCreate, BookingUpdate]):
         return db_obj
 
     def reschedule_booking(
-        self, db: Session, *, db_obj: Booking, start_time: datetime, end_time: datetime
-    ) -> Optional[Booking]:
+        self, db: Session, *, db_obj: ResourceBooking, start_time: datetime, end_time: datetime
+    ) -> Optional[ResourceBooking]:
         # Check overlap (excluding the current booking)
         if self.check_overlap(db, asset_id=db_obj.asset_id, start_time=start_time, end_time=end_time, exclude_booking_id=db_obj.id):
             return None
@@ -64,4 +64,4 @@ class CRUDBooking(CRUDBase[Booking, BookingCreate, BookingUpdate]):
         db.refresh(db_obj)
         return db_obj
 
-booking = CRUDBooking(Booking)
+booking = CRUDBooking(ResourceBooking)

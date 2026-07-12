@@ -4,13 +4,10 @@ from sqlalchemy.orm import relationship
 from app.db.base_class import Base
 
 class UserRole(str, enum.Enum):
-    super_admin = "super_admin"
-    admin = "admin"
-    asset_manager = "asset_manager"
-    department_head = "department_head"
-    employee = "employee"
-    auditor = "auditor"
-    technician = "technician"
+    ADMIN = "ADMIN"
+    ASSET_MANAGER = "ASSET_MANAGER"
+    DEPARTMENT_HEAD = "DEPARTMENT_HEAD"
+    EMPLOYEE = "EMPLOYEE"
 
 class User(Base):
     __tablename__ = "users"
@@ -19,7 +16,7 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
     full_name = Column(String, index=True)
-    role = Column(Enum(UserRole), default=UserRole.employee, nullable=False)
+    role = Column(Enum(UserRole), default=UserRole.EMPLOYEE, nullable=False)
     is_active = Column(Boolean, default=True)
     department_id = Column(Integer, ForeignKey("departments.id", name="fk_user_department"), nullable=True)
 

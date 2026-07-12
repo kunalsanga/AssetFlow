@@ -14,7 +14,7 @@ def read_audit_cycles(
 ) -> Any:
     """Retrieve audit cycles."""
     # Employees only see cycles assigned to them as auditor
-    if current_user.role == models.UserRole.employee:
+    if current_user.role == models.UserRole.EMPLOYEE:
         cycles = db.query(AuditCycle).filter(AuditCycle.auditor_id == current_user.id).all()
     else:
         cycles = db.query(AuditCycle).all()
@@ -25,7 +25,7 @@ def create_audit_cycle(
     *,
     db: Session = Depends(deps.get_db),
     cycle_in: schemas.AuditCycleCreate,
-    current_user: models.User = Depends(deps.require_role([models.UserRole.super_admin, models.UserRole.admin, models.UserRole.asset_manager]))
+    current_user: models.User = Depends(deps.require_role([models.UserRole.super_admin, models.UserRole.ADMIN, models.UserRole.ASSET_MANAGER]))
 ) -> Any:
     """Create a new audit cycle. Automatically populates item records for all assets."""
     return crud.audit.create_cycle(db, obj_in=cycle_in)
@@ -47,7 +47,7 @@ def read_audit_items(
         )
 
     # Access control: employees can only view items for cycles where they are the auditor
-    if current_user.role == models.UserRole.employee and cycle.auditor_id != current_user.id:
+    if current_user.role == models.UserRole.EMPLOYEE and cycle.auditor_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You do not have permission to view items in this cycle."
@@ -75,7 +75,7 @@ def verify_audit_item(
         )
 
     # Access control: only auditor, asset managers, or admins can update
-    if current_user.role == models.UserRole.employee and db_item.cycle.auditor_id != current_user.id:
+    if current_user.role == models.UserRole.EMPLOYEE and db_item.cycle.auditor_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You are not assigned as the auditor for this cycle."
@@ -101,7 +101,7 @@ def close_audit_cycle(
     *,
     db: Session = Depends(deps.get_db),
     id: int,
-    current_user: models.User = Depends(deps.require_role([models.UserRole.super_admin, models.UserRole.admin, models.UserRole.asset_manager]))
+    current_user: models.User = Depends(deps.require_role([models.UserRole.super_admin, models.UserRole.ADMIN, models.UserRole.ASSET_MANAGER]))
 ) -> Any:
     """Close and lock an audit cycle. Updates asset statuses and logs activity. Admin/Manager only."""
     try:

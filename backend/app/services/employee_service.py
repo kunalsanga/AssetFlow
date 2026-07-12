@@ -64,7 +64,7 @@ class EmployeeService:
     async def update_role(self, db: AsyncSession, id: int, obj_in: EmployeeRoleUpdate, current_user: User) -> User:
         # Business Rules:
         # - Only ADMIN can change roles.
-        if current_user.role != UserRole.admin:
+        if current_user.role != UserRole.ADMIN:
             raise UserRoleModificationException("Only administrators can modify roles.")
             
         # - Users cannot promote themselves.
@@ -72,48 +72,13 @@ class EmployeeService:
             raise UserRoleModificationException("Users cannot change their own roles.")
             
         user = await self.get_employee(db, id)
-
-        # - Cannot promote inactive employee
-        if not user.is_active:
-            raise UserRoleModificationException("Cannot change the role of an inactive employee.")
-
         old_role = user.role
-
-        # - Cannot demote last admin
-        if old_role == UserRole.admin and obj_in.role != UserRole.admin:
-            from sqlalchemy.future import select
-            from sqlalchemy import func
-            admin_count_result = await db.execute(
-                select(func.count(User.id)).where(
-                    User.role == UserRole.admin,
-                    User.is_active == True,
-                )
-            )
-            admin_count = admin_count_result.scalar() or 0
-            if admin_count <= 1:
-                raise UserRoleModificationException("Cannot demote the last active administrator.")
-
         user.role = obj_in.role
         
         # - Department Head must belong to assigned department.
-        if obj_in.role == UserRole.department_head and user.department_id is None:
+        # If user is promoted to department_head, they must have a department assigned.
+        if obj_in.role == UserRole.DEPARTMENT_HEAD and user.department_id is None:
             raise DepartmentHeadAssignmentException("Department Head must belong to an assigned department.")
-
-        # - Only one Department Head per department
-        if obj_in.role == UserRole.department_head and user.department_id is not None:
-            from sqlalchemy.future import select
-            existing_heads = await db.execute(
-                select(User).where(
-                    User.role == UserRole.department_head,
-                    User.department_id == user.department_id,
-                    User.id != user.id,
-                    User.is_active == True,
-                )
-            )
-            if existing_heads.scalars().first():
-                raise DepartmentHeadAssignmentException(
-                    "This department already has a head. Remove the existing head first."
-                )
             
         updated = await employee_repo.update(db, db_obj=user)
         
@@ -123,7 +88,6 @@ class EmployeeService:
             "EMPLOYEE_ROLE_CHANGED"
         )
         return updated
-
 
     async def update_status(self, db: AsyncSession, id: int, is_active: bool, current_user: User) -> User:
         user = await self.get_employee(db, id)
@@ -160,44 +124,4 @@ class EmployeeService:
     async def get_dropdown(self, db: AsyncSession) -> List[User]:
         return await employee_repo.get_active_dropdown(db)
 
-    async def get_department_heads_dropdown(self, db: AsyncSession) -> List[User]:
-        """Return active employees with role department_head."""
-        result = await db.execute(
-            __import__("sqlalchemy.future", fromlist=["select"]).select(User).where(
-                User.is_active == True,
-                User.role == UserRole.department_head,
-            ).order_by(User.full_name.asc())
-        )
-        return list(result.scalars().all())
-
-    async def get_asset_managers_dropdown(self, db: AsyncSession) -> List[User]:
-        """Return active employees with role asset_manager."""
-        result = await db.execute(
-            __import__("sqlalchemy.future", fromlist=["select"]).select(User).where(
-                User.is_active == True,
-                User.role == UserRole.asset_manager,
-            ).order_by(User.full_name.asc())
-        )
-        return list(result.scalars().all())
-
-    async def update_department(
-        self, db: AsyncSession, id: int, department_id: int, current_user: User
-    ) -> User:
-        user = await self.get_employee(db, id)
-        dept = await department_repo.get(db, department_id)
-        if not dept:
-            raise ResourceNotFoundException("Department not found.")
-        if dept.status != "Active":
-            raise DepartmentHeadAssignmentException("Cannot assign an inactive department.")
-        old_dept = user.department_id
-        user.department_id = department_id
-        updated = await employee_repo.update(db, db_obj=user)
-        await self.log_action(
-            db, current_user.id,
-            f"Employee '{updated.full_name or updated.email}' department changed to '{dept.name}'.",
-            "EMPLOYEE_DEPARTMENT_CHANGED",
-        )
-        return updated
-
 employee_service = EmployeeService()
-

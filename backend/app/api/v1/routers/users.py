@@ -19,7 +19,7 @@ def read_users(
     db: Session = Depends(deps.get_db),
     skip: int = 0,
     limit: int = 100,
-    current_user: models.User = Depends(deps.require_role([models.UserRole.super_admin, models.UserRole.admin]))
+    current_user: models.User = Depends(deps.require_role([models.UserRole.super_admin, models.UserRole.ADMIN]))
 ) -> Any:
     """Retrieve users. Admin only."""
     users = crud.user.get_multi(db, skip=skip, limit=limit)

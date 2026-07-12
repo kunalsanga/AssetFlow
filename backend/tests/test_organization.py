@@ -29,7 +29,7 @@ async def seed_org_data(db: AsyncSession):
         email="admin@example.com",
         hashed_password="hash",
         full_name="Admin User",
-        role=UserRole.admin,
+        role=UserRole.ADMIN,
         is_active=True,
     )
     # Create Employee 1
@@ -37,7 +37,7 @@ async def seed_org_data(db: AsyncSession):
         email="emp1@example.com",
         hashed_password="hash",
         full_name="Employee One",
-        role=UserRole.employee,
+        role=UserRole.EMPLOYEE,
         is_active=True,
     )
     # Create Employee 2
@@ -45,7 +45,7 @@ async def seed_org_data(db: AsyncSession):
         email="emp2@example.com",
         hashed_password="hash",
         full_name="Employee Two",
-        role=UserRole.employee,
+        role=UserRole.EMPLOYEE,
         is_active=True,
     )
     db.add_all([admin_user, emp1, emp2])
@@ -208,21 +208,21 @@ async def test_employee_role_promotion_rbac(db: AsyncSession):
     # 1. Non-admin (Employee) attempts to change role of Employee 2 - should fail
     with pytest.raises(UserRoleModificationException):
         await employee_service.update_role(
-            db, users["emp2"].id, EmployeeRoleUpdate(role=UserRole.asset_manager), users["emp1"]
+            db, users["emp2"].id, EmployeeRoleUpdate(role=UserRole.ASSET_MANAGER), users["emp1"]
         )
 
     # 2. Employee attempts to promote themselves - should fail
     with pytest.raises(UserRoleModificationException):
         await employee_service.update_role(
-            db, users["emp1"].id, EmployeeRoleUpdate(role=UserRole.asset_manager), users["emp1"]
+            db, users["emp1"].id, EmployeeRoleUpdate(role=UserRole.ASSET_MANAGER), users["emp1"]
         )
 
     # 3. Admin promotes employee - should succeed
     # Promote emp1 to Asset Manager
     promoted = await employee_service.update_role(
-        db, users["emp1"].id, EmployeeRoleUpdate(role=UserRole.asset_manager), users["admin"]
+        db, users["emp1"].id, EmployeeRoleUpdate(role=UserRole.ASSET_MANAGER), users["admin"]
     )
-    assert promoted.role == UserRole.asset_manager
+    assert promoted.role == UserRole.ASSET_MANAGER
 
     # Check activity log
     logs = (await db.execute(select(ActivityLog).where(ActivityLog.type == "EMPLOYEE_ROLE_CHANGED"))).scalars().all()
