@@ -5,8 +5,9 @@ export interface Asset {
   name: string;
   serial_number: string;
   model: string;
-  status: 'available' | 'allocated' | 'under_maintenance' | 'lost' | 'retired';
+  status: 'available' | 'allocated' | 'under_maintenance' | 'lost' | 'retired' | 'AVAILABLE' | 'ALLOCATED' | 'UNDER_MAINTENANCE' | 'LOST' | 'RETIRED';
   description?: string;
+  is_shared?: boolean;
 }
 
 export interface User {

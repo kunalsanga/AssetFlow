@@ -18,6 +18,9 @@ class TransferRequestCreate(BaseModel):
     target_type: str  # "user" or "department"
     target_id: int
 
+class TransferRequestUpdate(BaseModel):
+    pass
+
 class TransferRequestResponse(TransferRequestBase):
     id: Optional[int] = None
     requested_by_id: Optional[int] = None

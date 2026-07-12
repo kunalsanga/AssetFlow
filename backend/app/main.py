@@ -66,10 +66,10 @@ if settings.BACKEND_CORS_ORIGINS:
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
 from fastapi.responses import JSONResponse
-from app.exceptions import DashboardException
+from app.exceptions import AssetFlowException
 
-@app.exception_handler(DashboardException)
-async def dashboard_exception_handler(request, exc: DashboardException):
+@app.exception_handler(AssetFlowException)
+async def assetflow_exception_handler(request, exc: AssetFlowException):
     return JSONResponse(
         status_code=exc.status_code,
         content={

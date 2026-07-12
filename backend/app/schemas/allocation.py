@@ -22,6 +22,10 @@ class AllocationCreate(BaseModel):
     allocated_to_id: int
     due_date: datetime
 
+# Properties to receive via API on update
+class AllocationUpdate(BaseModel):
+    pass
+
 # Properties to receive via API on return
 class AllocationReturn(BaseModel):
     return_condition: Optional[str] = None
