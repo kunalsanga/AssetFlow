@@ -77,10 +77,10 @@ export const Dashboard = () => {
   if (error || !data) {
     return (
       <div className="flex items-center justify-center min-h-[500px]">
-        <div className="text-rose-600 bg-rose-50 p-6 rounded-xl border border-rose-200">
+        <div className="text-[#C0354E] bg-[#F5BFCA] p-6 rounded-[18px] border border-[#E097A8]">
           <AlertTriangle size={32} className="mx-auto mb-3" />
           <p className="font-semibold text-center">{error || "Failed to load"}</p>
-          <Button onClick={loadDashboard} variant="outline" className="mt-4 w-full bg-white text-rose-700 border-rose-200">Retry</Button>
+          <Button onClick={loadDashboard} variant="outline" className="mt-4 w-full bg-white text-[#9B2039] border-[#E097A8]">Retry</Button>
         </div>
       </div>
     );
@@ -95,17 +95,17 @@ export const Dashboard = () => {
 
       {/* Overdue Alert */}
       {data.overdueAlert.active && (
-        <div className="bg-rose-50 border-none rounded-2xl p-5 flex items-start gap-4 shadow-sm animate-in fade-in slide-in-from-bottom-2">
-          <div className="p-2.5 bg-rose-100 text-rose-600 rounded-full shrink-0">
-            <AlertTriangle size={22} />
+        <div className="bg-[#F5BFCA] border border-[#E097A8] rounded-[18px] p-5 flex items-start gap-4 shadow-sm">
+          <div className="p-2.5 bg-white text-[#C0354E] rounded-full shrink-0 shadow-sm">
+            <AlertTriangle size={20} />
           </div>
           <div className="flex-1 pt-0.5">
-            <h3 className="text-rose-800 font-semibold">Action Required: Overdue Returns</h3>
-            <p className="text-sm text-rose-600/90 mt-1">
+            <h3 className="font-bold text-[#9B2039]">Action Required: Overdue Returns</h3>
+            <p className="text-sm text-[#9B2039]/85 mt-1">
               {data.overdueAlert.message}
             </p>
           </div>
-          <Button variant="outline" className="border-rose-200 text-rose-700 bg-white hover:bg-rose-50 shrink-0 shadow-sm rounded-xl">
+          <Button variant="outline" className="border-[#E097A8]/60 text-[#9B2039] bg-white hover:bg-[#F5BFCA]/60 shrink-0 shadow-sm rounded-xl text-sm">
             Review
           </Button>
         </div>
@@ -119,9 +119,8 @@ export const Dashboard = () => {
           icon={<Laptop size={20} />} 
           trend={data.stats.assetsAvailable.trend}
           trendDirection={data.stats.assetsAvailable.trendDirection}
-          iconBgColor="bg-blue-100"
-          iconColor="text-blue-600"
-          className="border-none bg-blue-50/50"
+          iconBgColor="bg-[#B5E9D7]"
+          iconColor="text-[#148A65]"
         />
         <StatCard 
           title="Assets Allocated" 
@@ -129,9 +128,8 @@ export const Dashboard = () => {
           icon={<ArrowRightLeft size={20} />} 
           trend={data.stats.assetsAllocated.trend}
           trendDirection={data.stats.assetsAllocated.trendDirection}
-          iconBgColor="bg-purple-100"
-          iconColor="text-purple-600"
-          className="border-none bg-purple-50/50"
+          iconBgColor="bg-[#BDDBF5]"
+          iconColor="text-[#1565A8]"
         />
         <StatCard 
           title="Maintenance Today" 
@@ -139,9 +137,8 @@ export const Dashboard = () => {
           icon={<Wrench size={20} />} 
           trend={data.stats.maintenanceToday.trend}
           trendDirection={data.stats.maintenanceToday.trendDirection}
-          iconBgColor="bg-amber-100"
-          iconColor="text-amber-600"
-          className="border-none bg-amber-50/50"
+          iconBgColor="bg-[#FAD89A]"
+          iconColor="text-[#C07A0A]"
         />
         <StatCard 
           title="Active Bookings" 
@@ -149,9 +146,8 @@ export const Dashboard = () => {
           icon={<CalendarClock size={20} />} 
           trend={data.stats.activeBookings.trend}
           trendDirection={data.stats.activeBookings.trendDirection}
-          iconBgColor="bg-emerald-100"
-          iconColor="text-emerald-600"
-          className="border-none bg-emerald-50/50"
+          iconBgColor="bg-[#B0E5F0]"
+          iconColor="text-[#1A8FAD]"
         />
         <StatCard 
           title="Pending Transfers" 
@@ -159,9 +155,8 @@ export const Dashboard = () => {
           icon={<Send size={20} />} 
           trend={data.stats.pendingTransfers.trend}
           trendDirection={data.stats.pendingTransfers.trendDirection}
-          iconBgColor="bg-indigo-100"
-          iconColor="text-indigo-600"
-          className="border-none bg-indigo-50/50"
+          iconBgColor="bg-[#F8E0A0]"
+          iconColor="text-[#C07A0A]"
         />
         <StatCard 
           title="Upcoming Returns" 
@@ -169,9 +164,8 @@ export const Dashboard = () => {
           icon={<Undo2 size={20} />} 
           trend={data.stats.upcomingReturns.trend}
           trendDirection={data.stats.upcomingReturns.trendDirection}
-          iconBgColor="bg-rose-100"
-          iconColor="text-rose-600"
-          className="border-none bg-rose-50/50"
+          iconBgColor="bg-[#F5BFCA]"
+          iconColor="text-[#C0354E]"
         />
       </div>
 
@@ -197,13 +191,13 @@ export const Dashboard = () => {
 
         {/* Quick Actions */}
         <div>
-          <Card className="h-full border-none shadow-md bg-gradient-to-br from-surface to-slate-50">
+          <Card className="h-full border-none shadow-md bg-gradient-to-br from-surface to-secondary/30">
             <CardHeader className="border-b border-border/40 pb-5">
               <CardTitle className="text-lg">Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="pt-6 grid grid-cols-1 gap-4">
               <button className="flex items-center gap-4 p-4 rounded-2xl bg-white border border-border/40 hover:border-primary/30 hover:shadow-md transition-all text-left group">
-                <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center group-hover:scale-110 transition-transform">
+                <div className="w-12 h-12 rounded-full bg-[#DCECF7] text-[#1565A8] flex items-center justify-center group-hover:scale-110 transition-transform">
                   <PlusCircle size={24} />
                 </div>
                 <div>
@@ -212,8 +206,8 @@ export const Dashboard = () => {
                 </div>
               </button>
               
-              <button className="flex items-center gap-4 p-4 rounded-2xl bg-white border border-border/40 hover:border-secondary/30 hover:shadow-md transition-all text-left group">
-                <div className="w-12 h-12 rounded-full bg-secondary/10 text-secondary flex items-center justify-center group-hover:scale-110 transition-transform">
+              <button className="flex items-center gap-4 p-4 rounded-2xl bg-white border border-border/40 hover:border-primary/30 hover:shadow-md transition-all text-left group">
+                <div className="w-12 h-12 rounded-full bg-[#B0E5F0] text-[#1A8FAD] flex items-center justify-center group-hover:scale-110 transition-transform">
                   <CalendarClock size={24} />
                 </div>
                 <div>
@@ -223,7 +217,7 @@ export const Dashboard = () => {
               </button>
               
               <button className="flex items-center gap-4 p-4 rounded-2xl bg-white border border-border/40 hover:border-orange-300 hover:shadow-md transition-all text-left group">
-                <div className="w-12 h-12 rounded-full bg-orange-100 text-orange-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <div className="w-12 h-12 rounded-full bg-[#FAD89A] text-[#C07A0A] flex items-center justify-center group-hover:scale-110 transition-transform">
                   <Wrench size={24} />
                 </div>
                 <div>
@@ -232,8 +226,8 @@ export const Dashboard = () => {
                 </div>
               </button>
               
-              <button className="flex items-center gap-4 p-4 rounded-2xl bg-white border border-border/40 hover:border-blue-300 hover:shadow-md transition-all text-left group">
-                <div className="w-12 h-12 rounded-full bg-blue-100 text-blue-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <button className="flex items-center gap-4 p-4 rounded-2xl bg-white border border-border/40 hover:border-primary/30 hover:shadow-md transition-all text-left group">
+                <div className="w-12 h-12 rounded-full bg-[#BDDBF5] text-[#1565A8] flex items-center justify-center group-hover:scale-110 transition-transform">
                   <Send size={24} />
                 </div>
                 <div>

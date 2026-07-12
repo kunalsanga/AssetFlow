@@ -8,7 +8,7 @@ interface TableProps {
 
 export const Table: React.FC<TableProps> = ({ children, className }) => {
   return (
-    <div className={cn("w-full overflow-x-auto rounded-xl border border-border/60 bg-surface shadow-sm", className)}>
+    <div className={cn("w-full overflow-x-auto rounded-[18px] border border-border bg-surface shadow-[0_2px_12px_rgba(21,101,168,0.08)]", className)}>
       <table className="w-full text-left text-sm text-text">
         {children}
       </table>
@@ -17,19 +17,19 @@ export const Table: React.FC<TableProps> = ({ children, className }) => {
 };
 
 export const TableHeader: React.FC<{ children: ReactNode; className?: string }> = ({ children, className }) => (
-  <thead className={cn("bg-background/80 text-muted/80 text-xs uppercase font-semibold border-b border-border/60", className)}>
+  <thead className={cn("bg-[#DCECF7] text-[#17324D] text-xs uppercase font-bold border-b border-[#A9C9DE] tracking-wide", className)}>
     {children}
   </thead>
 );
 
 export const TableBody: React.FC<{ children: ReactNode; className?: string }> = ({ children, className }) => (
-  <tbody className={cn("divide-y divide-border/60", className)}>
+  <tbody className={cn("divide-y divide-border", className)}>
     {children}
   </tbody>
 );
 
 export const TableRow: React.FC<{ children: ReactNode; className?: string }> = ({ children, className }) => (
-  <tr className={cn("hover:bg-background/40 transition-colors", className)}>
+  <tr className={cn("hover:bg-[#DCECF7]/50 transition-colors duration-100", className)}>
     {children}
   </tr>
 );

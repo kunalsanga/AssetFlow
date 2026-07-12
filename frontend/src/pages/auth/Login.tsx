@@ -12,6 +12,7 @@ const USE_MOCK_DATA = import.meta.env.VITE_USE_MOCK_DATA === 'true';
 export const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [role, setRole] = useState('employee'); // Default role
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
@@ -22,7 +23,7 @@ export const Login = () => {
     e.preventDefault();
     setError('');
     try {
-      await login(email, password);
+      await login(email, password, role);
       navigate('/dashboard');
     } catch (err) {
       setError('Invalid email or password');
@@ -105,6 +106,21 @@ export const Login = () => {
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
+            </div>
+            
+            <div className="flex flex-col gap-1.5">
+              <label className="text-sm font-medium text-text">Account Role</label>
+              <select
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                className="flex h-11 w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-text focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
+                required
+              >
+                <option value="employee">Employee</option>
+                <option value="department_head">Department Head</option>
+                <option value="asset_manager">Asset Manager</option>
+                <option value="admin">Administrator</option>
+              </select>
             </div>
             
             <div className="flex items-center justify-between pt-1">

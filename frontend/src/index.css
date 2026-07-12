@@ -1,14 +1,41 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: #f8fafc;
-  --color-surface: #ffffff;
-  --color-primary: #4f46e5;
-  --color-secondary: #a78bfa;
-  --color-text: #1f2937;
-  --color-muted: #6b7280;
-  --color-border: #e5e7eb;
-  --color-error: #ef4444;
+  /* === Core Palette === */
+  --color-background: #C9E1F2;
+  --color-surface: #FFFFFF;
+  --color-primary: #2389C9;
+  --color-secondary: #DCECF7;
+  --color-text: #17324D;
+  --color-muted: #557086;
+  --color-border: #A9C9DE;
+
+  /* === Semantic / Status Colors === */
+  --color-error: #C0354E;
+  --color-success: #148A65;
+  --color-warning: #C07A0A;
+  --color-info: #1A8FAD;
+
+  /* === Deep Accent Blues === */
+  --color-deep-blue: #1565A8;
+  --color-bright-blue: #2FA7D8;
+  --color-cyan-accent: #39C2D7;
+
+  /* === Icon / Card Semantic Accent Pairs === */
+  --color-success-bg: #B5E9D7;
+  --color-success-fg: #148A65;
+
+  --color-orange-bg: #FAD89A;
+  --color-orange-fg: #C07A0A;
+
+  --color-cyan-bg: #B0E5F0;
+  --color-cyan-fg: #1A8FAD;
+
+  --color-coral-bg: #F5BFCA;
+  --color-coral-fg: #C0354E;
+
+  --color-amber-bg: #F8E0A0;
+  --color-amber-fg: #C07A0A;
 }
 
 @layer base {
@@ -18,19 +45,18 @@
 }
 
 @layer components {
-  /* Reusable button styles based on wireframes */
   .btn {
-    @apply inline-flex items-center justify-center rounded-xl text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 shadow-sm;
+    @apply inline-flex items-center justify-center rounded-xl text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 shadow-sm;
   }
   .btn-primary {
-    @apply bg-primary text-white hover:bg-primary/90;
+    @apply bg-primary text-white hover:bg-deep-blue;
   }
   .btn-outline {
-    @apply border border-border bg-surface hover:bg-background/80 text-text;
+    @apply border border-border bg-surface hover:bg-secondary text-primary font-semibold;
   }
-  
+
   /* Input styles */
   .input {
-    @apply flex h-10 w-full rounded-xl border border-border bg-surface px-4 py-2 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 hover:border-primary/50;
+    @apply flex h-10 w-full rounded-xl border border-border bg-surface px-4 py-2 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 hover:border-primary/60;
   }
 }

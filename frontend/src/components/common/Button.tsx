@@ -17,14 +17,14 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         ref={ref}
         className={cn(
-          'inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary disabled:pointer-events-none disabled:opacity-50',
+          'inline-flex items-center justify-center rounded-xl text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 disabled:pointer-events-none disabled:opacity-50 shadow-sm',
           {
-            'bg-primary text-background hover:bg-primary/90': variant === 'primary',
-            'border border-border bg-transparent hover:bg-surface text-text': variant === 'outline',
-            'hover:bg-surface text-text': variant === 'ghost',
-            'h-8 px-3 text-xs': size === 'sm',
-            'h-9 px-4 py-2': size === 'md',
-            'h-10 px-8': size === 'lg',
+            'bg-primary text-white hover:bg-[#1565A8] active:bg-[#0f4d85]': variant === 'primary',
+            'border border-border bg-secondary hover:bg-[#C9E1F2] text-primary font-semibold': variant === 'outline',
+            'hover:bg-secondary text-text shadow-none': variant === 'ghost',
+            'h-8 px-3 text-xs rounded-lg': size === 'sm',
+            'h-10 px-4 py-2': size === 'md',
+            'h-12 px-8 rounded-2xl': size === 'lg',
           },
           className
         )}

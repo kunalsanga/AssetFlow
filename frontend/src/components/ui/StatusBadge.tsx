@@ -10,13 +10,13 @@ interface StatusBadgeProps {
 }
 
 const statusStyles: Record<StatusType, string> = {
-  active: 'bg-emerald-100 text-emerald-700',
-  success: 'bg-emerald-100 text-emerald-700',
-  inactive: 'bg-gray-100 text-gray-600',
-  pending: 'bg-amber-100 text-amber-700',
-  warning: 'bg-orange-100 text-orange-700',
-  error: 'bg-rose-100 text-rose-700',
-  info: 'bg-blue-100 text-blue-700',
+  active:   'bg-[#DCECF7] text-[#1565A8]',
+  success:  'bg-[#B5E9D7] text-[#148A65]',
+  inactive: 'bg-[#DDE8F0] text-[#557086]',
+  pending:  'bg-[#F8E0A0] text-[#9B6008]',
+  warning:  'bg-[#FAD89A] text-[#C07A0A]',
+  error:    'bg-[#F5BFCA] text-[#9B2039]',
+  info:     'bg-[#B0E5F0] text-[#1A8FAD]',
 };
 
 export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, type = 'info', className }) => {

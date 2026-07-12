@@ -5,11 +5,11 @@ import { cn } from '../lib/utils';
 
 export const Maintenance = () => {
   const columns = [
-    { title: 'Pending', count: 5, color: 'bg-slate-50', headerColor: 'bg-slate-100/50', textColor: 'text-slate-700' },
-    { title: 'Approved', count: 2, color: 'bg-blue-50/50', headerColor: 'bg-blue-100/50', textColor: 'text-blue-700' },
-    { title: 'Technician Assigned', count: 3, color: 'bg-purple-50/50', headerColor: 'bg-purple-100/50', textColor: 'text-purple-700' },
-    { title: 'In Progress', count: 4, color: 'bg-amber-50/50', headerColor: 'bg-amber-100/50', textColor: 'text-amber-700' },
-    { title: 'Resolved', count: 12, color: 'bg-emerald-50/50', headerColor: 'bg-emerald-100/50', textColor: 'text-emerald-700' }
+    { title: 'Pending',             count: 5,  color: 'bg-[#F8E0A0]/40', headerColor: 'bg-[#F8E0A0]',  textColor: 'text-[#9B6008]' },
+    { title: 'Approved',            count: 2,  color: 'bg-[#DCECF7]/60', headerColor: 'bg-[#DCECF7]',  textColor: 'text-[#1565A8]' },
+    { title: 'Technician Assigned', count: 3,  color: 'bg-[#B0E5F0]/40', headerColor: 'bg-[#B0E5F0]',  textColor: 'text-[#1A8FAD]' },
+    { title: 'In Progress',         count: 4,  color: 'bg-[#BDDBF5]/50', headerColor: 'bg-[#BDDBF5]',  textColor: 'text-[#1565A8]' },
+    { title: 'Resolved',            count: 12, color: 'bg-[#B5E9D7]/40', headerColor: 'bg-[#B5E9D7]',  textColor: 'text-[#148A65]' }
   ];
 
   return (
@@ -19,7 +19,7 @@ export const Maintenance = () => {
           <h1 className="text-[28px] font-bold text-text tracking-tight">Maintenance</h1>
           <p className="text-muted mt-1 text-sm">Track maintenance requests and repair workflows.</p>
         </div>
-        <Button className="gap-2 bg-orange-500 hover:bg-orange-600 border-none text-white shadow-sm rounded-xl">
+        <Button className="gap-2 shadow-sm rounded-xl">
           <Plus size={18} />
           New Request
         </Button>

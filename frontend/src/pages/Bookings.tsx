@@ -108,7 +108,7 @@ export const Bookings = () => {
                       onClick={() => handleDateClick(day)}
                       className={cn(
                         "h-8 w-8 mx-auto flex items-center justify-center rounded-full text-xs transition-all",
-                        isSelected ? "bg-indigo-500 text-white font-bold shadow-md shadow-indigo-200" : 
+                        isSelected ? "bg-primary text-white font-bold shadow-md shadow-primary/20" : 
                         "hover:bg-slate-100 text-slate-600 font-medium"
                       )}
                     >
