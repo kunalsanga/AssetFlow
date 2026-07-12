@@ -1,4 +1,3 @@
-import { createContext, useState, useEffect, useContext, ReactNode, FC } from 'react';
 import { User } from '../types';
 import * as authService from '../services/auth.service';
 
